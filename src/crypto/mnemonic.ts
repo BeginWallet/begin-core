@@ -1,7 +1,7 @@
 import { generateMnemonic as _generateMnemonic } from 'bip39'
 
-const generateMnemonic:any = () => {
-    return _generateMnemonic(160)
+const generateMnemonic:any = (bytes:number) => {
+    return _generateMnemonic(bytes)
 }
 
 export { generateMnemonic }
