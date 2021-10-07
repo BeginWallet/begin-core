@@ -19,10 +19,16 @@ module.exports = {
     },
   },
   transformIgnorePatterns: [
-    "[/\\\\]node_modules[/\\\\](?!crypto-random-string|@emurgo/).+\\.js$",
+    // "[/\\\\]node_modules[/\\\\](?!@emurgo/|@cardano-sdk/).+\\.js$",
+    // "<rootDir>/node_modules/(?!lodash-es)",
+    // "<rootDir>/node_modules/(?!es6-promisify)",
+    // "<rootDir>/node_modules/(?!@b58-finance/)",
+    "!node_modules/"
   ],
   moduleNameMapper: {
     "^@emurgo/(.*)$": "<rootDir>/node_modules/@emurgo/$1/cardano_serialization_lib.js",
+    // "^@b58-finance/(.*)$": "<rootDir>/node_modules/@b58-finance/$1/index.js"
+    // "ˆ@cardano-sdk/(.*)$": "<rootDir>/node_modules/@emurgo/$1/",
   },
 };
 

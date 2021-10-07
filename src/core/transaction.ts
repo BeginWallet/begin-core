@@ -1,7 +1,9 @@
-import Base, { CardanoType } from "./base";
+import Base from "./base";
 import Account, { AccountContext } from './account';
-import { BigNum, MultiAsset, TransactionBuilder, 
-    TransactionWitnessSet, Transaction as CardanoTransaction } from "@emurgo/cardano-serialization-lib-asmjs";
+import { CSL } from '@cardano-sdk/core';
+import { defaultSelectionConstraints, InputSelectionParameters, ProtocolParametersForInputSelection, roundRobinRandomImprove } from '@cardano-sdk/cip2';
+import { BigNum,
+    TransactionWitnessSet, Transaction as CardanoTransaction, TransactionUnspentOutput, TransactionOutput } from "@emurgo/cardano-serialization-lib-asmjs";
 
 export const enum TRANSACITON_SIZES {
     MultiAsset = 5848,
@@ -48,8 +50,8 @@ class Transaction extends Base {
     sign(tx: string, keyHashes: any[],
         password:string, accountIndex: number,
         encryptedRootKey: string, partialSign: boolean = false): TransactionWitnessSet {
-        
-        const { paymentKey, stakeKey } = Account(this.Cardano).generateAccountKeyPair(
+        const account = new Account(this.Cardano);
+        const { paymentKey, stakeKey } = account.generateAccountKeyPair(
             password,
             accountIndex,
             encryptedRootKey
@@ -89,7 +91,41 @@ class Transaction extends Base {
         return txWitnessSet
     }
 
-    build(account:AccountContext, utxos:any, outputs:any, protocolParams: ProtocolParametes): CardanoTransaction {
+    async build(account:AccountContext, utxos:Set<TransactionUnspentOutput>, outputs:Set<TransactionOutput>, protocolParams?: ProtocolParametes): Promise<CardanoTransaction | any> {
+
+        console.log(account);
+        console.log(protocolParams);
+
+        const buildTxOfLength = (length: number) => async () => ({ to_bytes: () => ({ length }) } as CSL.Transaction);
+
+        const getRandomImprove = roundRobinRandomImprove(this.Cardano)
+        const protocolParameters = {
+            minFeeCoefficient: 44,
+            minFeeConstant: 155381,
+            coinsPerUtxoWord: 34482,
+            maxTxSize: 16384,
+            maxValueSize: 5000
+          } as ProtocolParametersForInputSelection;
+          
+        const inputParams: InputSelectionParameters = {
+            utxo : utxos,
+            outputs: outputs,
+            // constraints: SelectionConstraints.mockConstraintsToConstraints()
+            constraints: defaultSelectionConstraints({
+                csl: this.Cardano,
+                protocolParameters,
+                buildTx: buildTxOfLength(protocolParameters.maxTxSize!)
+            })
+        };
+
+        const data = await getRandomImprove.select(inputParams);
+        console.log(data); 
+        // results();
+
+        return false;
+    
+    
+    // TODO: Refactory the whole code down.
 
         //TODO: Implement multiAssetCount and CoinSelection algo
         // *** REFERENCE CODE
@@ -108,110 +144,114 @@ class Transaction extends Base {
         //     20 + totalAssets
         //   );
         //   const inputs = selection.input;
-        const inputs:any[] = [];
+        
+    //     console.log(utxos) //TODO: Remove it
+    //     const inputs:any[] = [];
 
-        const txBuilder = this.transactionBuilder(protocolParams);
+    //     const txBuilder = this.transactionBuilder(protocolParams);
 
-        inputs.forEach(utxo => {
-            txBuilder.add_input(
-                utxo.output().address(),
-                utxo.input(),
-                utxo.output().amount()
-            )
-        });
+    //     inputs.forEach(utxo => {
+    //         txBuilder.add_input(
+    //             utxo.output().address(),
+    //             utxo.input(),
+    //             utxo.output().amount()
+    //         )
+    //     });
 
-        //TODO: Double check possibily to have more outputs add them all.
-        txBuilder.add_output(outputs.get(0));
+    //     //TODO: Double check possibily to have more outputs add them all.
+    //     txBuilder.add_output(outputs.get(0));
 
-        //TODO: Implement after CoinSelection done
-        // const change = selection.change;
-        const change:any = {};
-        const changeMultiAssets:any = change.multiasset();
+    //     //TODO: Implement after CoinSelection done
+    //     // const change = selection.change;
+    //     const change:any = {};
+    //     const changeMultiAssets:any = change.multiasset();
 
-        //Check for the Change Value size, and if multiasset is not too big for a single output.
-        if (changeMultiAssets && change.to_bytes().length * 2 > TRANSACITON_SIZES.Value) {
-            const partialChange = this.Cardano.Value.new(
-                this.Cardano.BigNum.from_str('0')
-            );
+    //     //Check for the Change Value size, and if multiasset is not too big for a single output.
+    //     if (changeMultiAssets && change.to_bytes().length * 2 > TRANSACITON_SIZES.Value) {
+    //         const partialChange = this.Cardano.Value.new(
+    //             this.Cardano.BigNum.from_str('0')
+    //         );
 
-            const partialMultiAssets = this.makeMultiAssetsPatial(changeMultiAssets);
-            partialChange.set_multiasset(partialMultiAssets);
+    //         const partialMultiAssets = this.makeMultiAssetsPatial(changeMultiAssets);
+    //         partialChange.set_multiasset(partialMultiAssets);
 
-            //TODO: Replace for minADA helper function
-            const minAda = this.Cardano.min_ada_required(
-                partialChange,
-                protocolParams.minUtxo
-            );
-            partialChange.set_coin(minAda);
+    //         //TODO: Replace for minADA helper function
+    //         const minAda = this.Cardano.min_ada_required(
+    //             partialChange,
+    //             protocolParams.minUtxo
+    //         );
+    //         partialChange.set_coin(minAda);
 
-            txBuilder.add_output(
-                this.Cardano.TransactionOutput.new(
-                    this.Cardano.Address.from_bech32(account.paymentAddr),
-                    partialChange
-                )
-            );
-        }
+    //         txBuilder.add_output(
+    //             this.Cardano.TransactionOutput.new(
+    //                 this.Cardano.Address.from_bech32(account.paymentAddr),
+    //                 partialChange
+    //             )
+    //         );
+    //     }
 
-        txBuilder.set_ttl(protocolParams.slot + TX.invalid_hereafter);
-        txBuilder.add_change_if_needed(
-            this.Cardano.Address.from_bech32(account.paymentAddr)
-        );
+    //     txBuilder.set_ttl(protocolParams.slot + TX.invalid_hereafter);
+    //     txBuilder.add_change_if_needed(
+    //         this.Cardano.Address.from_bech32(account.paymentAddr)
+    //     );
 
-        const transaction = this.Cardano.Transaction.new(
-            txBuilder.build(),
-            this.Cardano.TransactionWitnessSet.new()
-        );
+    //     const transaction = this.Cardano.Transaction.new(
+    //         txBuilder.build(),
+    //         this.Cardano.TransactionWitnessSet.new()
+    //     );
 
-        const txSize = transaction.to_bytes().length * 2;
-        if (txSize > protocolParams.maxTxSize) throw new Error('Tx max size limit');
+    //     const txSize = transaction.to_bytes().length * 2;
+    //     if (txSize > protocolParams.maxTxSize) throw new Error('Tx max size limit');
 
-        return transaction;
-    }
+    //     return transaction;
+    // }
 
-    private transactionBuilder(protocolParams: ProtocolParametes): TransactionBuilder {
-        const txBuilder = this.Cardano.TransactionBuilder.new(
-            this.Cardano.LinearFee.new(
-                protocolParams.linearFee.minFeeA,
-                protocolParams.linearFee.minFeeB
-            ),
-            protocolParams.minUtxo,
-            protocolParams.poolDeposit,
-            protocolParams.keyDeposit
-        )
+    // private transactionBuilder(protocolParams: ProtocolParametes): TransactionBuilder {
+    //     const txBuilder = this.Cardano.TransactionBuilder.new(
+    //         this.Cardano.LinearFee.new(
+    //             protocolParams.linearFee.minFeeA,
+    //             protocolParams.linearFee.minFeeB
+    //         ),
+    //         protocolParams.minUtxo,
+    //         protocolParams.poolDeposit,
+    //         protocolParams.keyDeposit,
+    //         1000, //TODO: Fix it max value size???
+    //         protocolParams.maxTxSize
+    //     )
 
-        return txBuilder;
+    //     return txBuilder;
     }
 
     //TODO: Double check this code after build and integration of cardano-message-signing
-    private makeMultiAssetsPatial(changeMultiAssets:any) : MultiAsset {
-        const policies:any = changeMultiAssets.keys();
-        const partialMultiAssets = this.Cardano.MultiAsset.new();
+    // private makeMultiAssetsPatial(changeMultiAssets:any) : MultiAsset {
+    //     const policies:any = changeMultiAssets.keys();
+    //     const partialMultiAssets = this.Cardano.MultiAsset.new();
 
-        for (let j = 0; j < changeMultiAssets.len(); j++) {
-            const policy = policies.get(j);
-            const policyAssets = changeMultiAssets.get(policy);
-            const assetNames = policyAssets.keys();
-            const assets = this.Cardano.Assets.new();
-            for (let k = 0; k < assetNames.len(); k++) {
-              const policyAsset = assetNames.get(k);
-              const quantity = policyAssets.get(policyAsset);
-              assets.insert(policyAsset, quantity);
-              //check size
-              const checkMultiAssets = this.Cardano.MultiAsset.from_bytes(
-                partialMultiAssets.to_bytes()
-              );
-              checkMultiAssets.insert(policy, assets);
-              if (checkMultiAssets.to_bytes().length * 2 >= TRANSACITON_SIZES.MultiAsset) {
-                partialMultiAssets.insert(policy, assets);
-                return partialMultiAssets;
-              }
-            }
-            partialMultiAssets.insert(policy, assets);
-        }
+    //     for (let j = 0; j < changeMultiAssets.len(); j++) {
+    //         const policy = policies.get(j);
+    //         const policyAssets = changeMultiAssets.get(policy);
+    //         const assetNames = policyAssets.keys();
+    //         const assets = this.Cardano.Assets.new();
+    //         for (let k = 0; k < assetNames.len(); k++) {
+    //           const policyAsset = assetNames.get(k);
+    //           const quantity = policyAssets.get(policyAsset);
+    //           assets.insert(policyAsset, quantity);
+    //           //check size
+    //           const checkMultiAssets = this.Cardano.MultiAsset.from_bytes(
+    //             partialMultiAssets.to_bytes()
+    //           );
+    //           checkMultiAssets.insert(policy, assets);
+    //           if (checkMultiAssets.to_bytes().length * 2 >= TRANSACITON_SIZES.MultiAsset) {
+    //             partialMultiAssets.insert(policy, assets);
+    //             return partialMultiAssets;
+    //           }
+    //         }
+    //         partialMultiAssets.insert(policy, assets);
+    //     }
 
-        return partialMultiAssets;
-    }
+    //     return partialMultiAssets;
+    // }
 
 }
 
-export default (Cardano:CardanoType) => (new Transaction(Cardano))
+export default Transaction
