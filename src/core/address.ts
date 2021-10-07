@@ -1,7 +1,7 @@
 import { Address as CardanoAddress, ByronAddress } from "@emurgo/cardano-serialization-lib-asmjs";
 import { CARDANO_NETWORK_ID, NETWORK_ID } from "../config/config";
 import { NetworkInfo } from "./account";
-import Base, { CardanoType } from "./base"; 
+import Base from "./base"; 
 
 export const enum ADDRESS_TYPE {
     Base = 'hbas_',
@@ -176,4 +176,4 @@ class Address extends Base {
     
 }
 
-export default (Cardano:CardanoType) => (new Address(Cardano))
+export default Address

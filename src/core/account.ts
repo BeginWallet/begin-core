@@ -2,13 +2,14 @@ import { Bip32PrivateKey, PrivateKey } from "@emurgo/cardano-serialization-lib-a
 import { mnemonicToEntropy } from "bip39"
 import { NETWORK_ID } from "../config/config";
 import Utils from "../utils"
-import Base, { CardanoType } from "./base"
+import Base from "./base"
 
 
 interface AccountData {
     index: number,
     name: string,
     avatar: string, //TODO: Check to user Wallet Address #0
+    publicKey: string,
     paymentPubKeyHash: string,
     stakePubKeyHash: string,
     [NETWORK_ID.mainnet]: AccountBalance,
@@ -33,6 +34,7 @@ export interface AccountContext extends AccountData, AccountBalance {
 }
 
 interface AccountKeyPair {
+    accountKey: Bip32PrivateKey,
     paymentKey: PrivateKey
     stakeKey: PrivateKey
 }
@@ -70,15 +72,17 @@ class Account extends Base {
     createAccount(name: string, password: string, 
         accountIndex:number, encryptedRootKey:string): AccountData {
 
-        const { paymentKey, stakeKey } = this.generateAccountKeyPair(
+        const { accountKey, paymentKey, stakeKey } = this.generateAccountKeyPair(
             password,
             accountIndex,
             encryptedRootKey
         )
 
+        const publicKey = Buffer.from(accountKey.to_public().as_bytes()).toString('hex');
         const paymentPubKey = paymentKey.to_public();
         const stakePubKey = stakeKey.to_public();
 
+        accountKey.free();
         paymentKey.free();
         stakeKey.free();
 
@@ -101,6 +105,7 @@ class Account extends Base {
             index: accountIndex,
             name,
             avatar: Math.random().toString(),
+            publicKey,
             paymentPubKeyHash,
             stakePubKeyHash,
             mainnet: networkDefault,
@@ -136,6 +141,7 @@ class Account extends Base {
             .derive(Utils.harden(accountIndex))
 
             return {
+                accountKey,
                 paymentKey: accountKey.derive(KeyPurposeType.Payment).derive(0).to_raw_key(),
                 stakeKey: accountKey.derive(KeyPurposeType.Stake).derive(0).to_raw_key()
             }   
@@ -179,4 +185,4 @@ class Account extends Base {
 
 }
 
-export default (Cardano:CardanoType) => (new Account(Cardano))
+export default Account

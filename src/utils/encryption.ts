@@ -1,4 +1,4 @@
-import cryptoRandomString from "crypto-random-string";
+import cryptoRandomString from "@b58-finance/crypto-random-string";
 import Base, { CardanoType } from "../core/base";
 
 class Encryption extends Base {

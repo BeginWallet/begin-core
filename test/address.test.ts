@@ -13,8 +13,9 @@ describe('Get Addresses from Bech32', () => {
         const paymentAddrBech32 = 'addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp';
         const rewardAddrBech32 = 'stake_test1uqevw2xnsc0pvn9t9r9c7qryfqfeerchgrlm3ea2nefr9hqp8n5xl';
 
-        const paymentAddr = Core.Address(Cardano).getAddress(paymentAddrBech32)
-        const rewardAddr = Core.Address(Cardano).getAddress(rewardAddrBech32)
+        const core = Core(Cardano).getInstance();
+        const paymentAddr = core.Address.getAddress(paymentAddrBech32)
+        const rewardAddr = core.Address.getAddress(rewardAddrBech32)
         
         expect(paymentAddr).toEqual(
             '009493315cd92eb5d8c4304e67b7e16ae36d61d34502694657811a2c8e32c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dc'
@@ -28,7 +29,8 @@ describe('Extract Key Hash from Addresses', () => {
         const paymentBytesHex = '009493315cd92eb5d8c4304e67b7e16ae36d61d34502694657811a2c8e32c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dc';
 
         // Same as BaseAddr
-        const paymentAddr = Core.Address(Cardano).extractKeyHash(
+        const core = Core(Cardano).getInstance();
+        const paymentAddr = core.Address.extractKeyHash(
             paymentBytesHex,
             networkInfo
         );
@@ -39,8 +41,9 @@ describe('Extract Key Hash from Addresses', () => {
 
     it('Reward Address returned', () => {
         const rewarBytesHex = 'e032c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dc'
-
-        const rewardAddr = Core.Address(Cardano).extractKeyHash(
+        
+        const core = Core(Cardano).getInstance();
+        const rewardAddr = core.Address.extractKeyHash(
             rewarBytesHex,
             networkInfo
         );
@@ -54,15 +57,16 @@ describe('Validate Addresses', () => {
     it('String Address is valid', () => {
         const paymentAddrBech32 = 'addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp';
         const rewardAddrBech32 = 'stake_test1uqevw2xnsc0pvn9t9r9c7qryfqfeerchgrlm3ea2nefr9hqp8n5xl';
-
+        
+        const core = Core(Cardano).getInstance();
         const isValidPaymentAddr = Buffer.from(
-            Core.Address(Cardano).isValidAddress(
+            core.Address.isValidAddress(
                 paymentAddrBech32, 
                 networkInfo) as Uint8Array
         ).toString('hex');
 
         const isValidRewardAddr = Buffer.from(
-            Core.Address(Cardano).isValidAddress(
+            core.Address.isValidAddress(
                 rewardAddrBech32, 
                 networkInfo) as Uint8Array
         ).toString('hex');
@@ -77,11 +81,12 @@ describe('Validate Addresses', () => {
         const paymentBytesHex = '009493315cd92eb5d8c4304e67b7e16ae36d61d34502694657811a2c8e32c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dc';
         const rewarBytesHex = 'e032c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dc';
 
-        const isValidPaymentAddr = Core.Address(Cardano).isValidAddress(
+        const core = Core(Cardano).getInstance();
+        const isValidPaymentAddr = core.Address.isValidAddress(
             Buffer.from(paymentBytesHex, 'hex'), 
             networkInfo);
 
-        const isValidRewardAddr = Core.Address(Cardano).isValidAddress(
+        const isValidRewardAddr = core.Address.isValidAddress(
             Buffer.from(rewarBytesHex, 'hex'), 
             networkInfo);
 
@@ -92,7 +97,8 @@ describe('Validate Addresses', () => {
     it('Byron Address String is valid', () => {
         //Generate a new byron address and test isValidAddress
         const encryptedRootKey = '0217484437fd4764bac8b8fea4215a799dd0fc04801dd6c34ff4b6976e64608f02cfaa1dee7df8f7ec05ee86553d5da4845534b5795ee08ae4c8d678579b2339ebf4876a971dfe46bcb22933e146cc1b9413fe9d381e3be83cc082aa0fa41b29fee7625541dc347124c780d2ecc10050f2f741e0b5a92f6afe25aa34f35c612dfc429acb2143ffcd867568914f85b02d3f0570cab7fa127b7c1281f6';
-        const { paymentKey } = Core.Account(Cardano).generateAccountKeyPair(
+        const core = Core(Cardano).getInstance();
+        const { paymentKey } = core.Account.generateAccountKeyPair(
                 '12345678',
                 0,
                 encryptedRootKey
@@ -106,7 +112,7 @@ describe('Validate Addresses', () => {
         );
 
         const isValidByronAddress = Buffer.from(
-            Core.Address(Cardano).isValidAddress(
+            core.Address.isValidAddress(
                 byronAddr.to_base58(), //Output 2cWKMJemoBakC6HuYgMEvFiodGBhkHLxomEuRGc9JnmECWMDsMv3CitvJGZNbXD6Gqq63
                 networkInfo) as Uint8Array
         ).toString('hex')
@@ -123,7 +129,8 @@ describe('Validate Addresses', () => {
             .from_base58('2cWKMJemoBakC6HuYgMEvFiodGBhkHLxomEuRGc9JnmECWMDsMv3CitvJGZNbXD6Gqq63')
             .to_bytes();
         
-        const isValidByronAddress = Core.Address(Cardano).isValidAddress(
+        const core = Core(Cardano).getInstance();
+        const isValidByronAddress = core.Address.isValidAddress(
             byronAddrBytes,
             networkInfo);
 
@@ -135,10 +142,11 @@ describe('Validate Addresses', () => {
 describe('Exception Handling', () => {
     it('Should throw Address not PK', () => {
         const paymentBytesHex = '109493315cd92eb5d8c4304e67b7e16ae36d61d34502694657811a2c8e32c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dc';
+        const core = Core(Cardano).getInstance();
 
         // Same as BaseAddr
         expect(() => {
-            Core.Address(Cardano).extractKeyHash(
+            core.Address.extractKeyHash(
                 paymentBytesHex,
                 networkInfo
             );
