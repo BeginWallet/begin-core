@@ -1,12 +1,10 @@
-import type * as CardanoSerializerType from "@emurgo/cardano-serialization-lib-asmjs"
-
-export type CardanoType = typeof CardanoSerializerType;
+import { CardanoSerializationLib } from "@cardano-sdk/core";
 
 class Base {
 
-    Cardano:CardanoType;
+    Cardano:CardanoSerializationLib;
 
-    constructor(_Cardano:CardanoType) {
+    constructor(_Cardano:CardanoSerializationLib) {
         this.Cardano = _Cardano;
     }
 }

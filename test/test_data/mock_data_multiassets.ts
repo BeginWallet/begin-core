@@ -9,7 +9,7 @@ export namespace MockMultiAsset {
   export const getMockInputsUtxos = () => {
     //Generate inputs
   
-    const inputs: Cardano.TransactionUnspentOutput[] = [];
+    const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
   
     let input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -24,7 +24,7 @@ export namespace MockMultiAsset {
       )
     );
   
-    inputs.push(input);
+    inputs.add(input);
   
     const _multiAsset = Cardano.MultiAsset.new();
     const _asset = Cardano.Assets.new();
@@ -64,21 +64,21 @@ export namespace MockMultiAsset {
     
     console.log(Buffer.from(_asset.keys().get(0).name()).toString('hex'))
   
-    inputs.push(input);
+    inputs.add(input);
   
     return inputs;
   }
   
   export const getMockOutputs = () => {
     //Generate outputs
-    const outputs: Cardano.TransactionOutput[] = [];
+    const outputs: Set<Cardano.TransactionOutput> = new Set();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
       Cardano.Value.new(BigNum.from_str('7300'))
     )
   
-    outputs.push(output);
+    outputs.add(output);
 
     const _multiAsset = Cardano.MultiAsset.new();
     const _asset = Cardano.Assets.new();
@@ -108,10 +108,54 @@ export namespace MockMultiAsset {
 
     console.log(output.amount().coin().to_str())
   
-    outputs.push(output);
+    outputs.add(output);
   
     return outputs
-  }  
+  }
+  
+  export const getMockOutputsCustom = (assetValue:string, adaValue:string) => {
+    //Generate outputs
+    const outputs: Set<Cardano.TransactionOutput> = new Set();
+  
+    let output = Cardano.TransactionOutput.new(
+      Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
+      Cardano.Value.new(BigNum.from_str('7300'))
+    )
+  
+    outputs.add(output);
+
+    const _multiAsset = Cardano.MultiAsset.new();
+    const _asset = Cardano.Assets.new();
+    _asset.insert(
+      Cardano.AssetName.new(
+        Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
+      ),
+      Cardano.BigNum.from_str(assetValue)
+    );
+    _multiAsset.insert(
+      Cardano.ScriptHash.from_bytes(
+        Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
+      ),
+      _asset
+    );
+
+    const _value = Cardano.Value.new(BigNum.from_str(adaValue));
+
+    _value.set_multiasset(_multiAsset);
+
+    //Cardano.Value.new(BigNum.from_str('2000000'))
+  
+    output = Cardano.TransactionOutput.new(
+      Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
+      _value
+    )
+
+    console.log(output.amount().coin().to_str())
+  
+    outputs.add(output);
+  
+    return outputs
+  }
 }
 
 //Utxo ADA
