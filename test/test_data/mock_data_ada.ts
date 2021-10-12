@@ -77,7 +77,103 @@ export namespace MockLovelace {
     outputs.add(output);
   
     return outputs
-  }  
+  }
+
+  export const getMockInputsUtxosSmall = () => {
+    //Generate inputs
+  
+    const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+  
+    let input = Cardano.TransactionUnspentOutput.new(
+      Cardano.TransactionInput.new(
+        Cardano.TransactionHash.from_bytes(
+          Buffer.from('bc37156be94099045706843d4c6663ffc0feb67ee76f91165b4ba37cde55c57e', 'hex')
+        ),
+        0
+      ),
+      Cardano.TransactionOutput.new(
+        Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
+        Cardano.Value.new(BigNum.from_str('2170000'))
+      )
+    );
+  
+    inputs.add(input);
+
+    input = Cardano.TransactionUnspentOutput.new(
+      Cardano.TransactionInput.new(
+        Cardano.TransactionHash.from_bytes(
+          Buffer.from('bc37156be94099045706843d4c6663ffc0feb67ee76f91165b4ba37cde55c57e', 'hex')
+        ),
+        0
+      ),
+      Cardano.TransactionOutput.new(
+        Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
+        Cardano.Value.new(BigNum.from_str('1000000'))
+      )
+    );
+  
+    inputs.add(input);
+  
+    return inputs;
+  }
+  
+  export const getMockOutputsSmall = () => {
+    //Generate outputs
+    const outputs: Set<Cardano.TransactionOutput> = new Set();
+  
+    let output = Cardano.TransactionOutput.new(
+      Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
+      Cardano.Value.new(BigNum.from_str('1000000'))
+    )
+  
+    outputs.add(output);
+  
+    output = Cardano.TransactionOutput.new(
+      Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
+      Cardano.Value.new(BigNum.from_str('50000'))
+    )
+  
+    outputs.add(output);
+  
+    return outputs
+  }
+
+  export const getMockInputsUtxosMin = () => {
+    //Generate inputs
+  
+    const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+  
+    let input = Cardano.TransactionUnspentOutput.new(
+      Cardano.TransactionInput.new(
+        Cardano.TransactionHash.from_bytes(
+          Buffer.from('bc37156be94099045706843d4c6663ffc0feb67ee76f91165b4ba37cde55c57e', 'hex')
+        ),
+        0
+      ),
+      Cardano.TransactionOutput.new(
+        Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
+        Cardano.Value.new(BigNum.from_str('2170000'))
+      )
+    );
+  
+    inputs.add(input);
+  
+    return inputs;
+  }
+  
+  export const getMockOutputsMin = () => {
+    //Generate outputs
+    const outputs: Set<Cardano.TransactionOutput> = new Set();
+  
+    let output = Cardano.TransactionOutput.new(
+      Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
+      Cardano.Value.new(BigNum.from_str('1000000'))
+    )
+  
+    outputs.add(output);
+  
+    return outputs
+  }
 }
 
 //Utxo ADA

@@ -901,6 +901,20 @@
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
 
+"@cardano-ogmios/client@4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@cardano-ogmios/client/-/client-4.1.0.tgz#fef6f1b82027eee7a9553fb31c6d5a7b32ee4d44"
+  dependencies:
+    "@cardano-ogmios/schema" "4.1.0"
+    "@types/json-bigint" "^1.0.1"
+    cross-fetch "^3.1.4"
+    fastq "^1.11.0"
+    isomorphic-ws "^4.0.1"
+    json-bigint CardanoSolutions/json-bigint#d277387d
+    nanoid "^3.1.22"
+    ts-custom-error "^3.2.0"
+    ws "^7.4.6"
+
 "@cardano-ogmios/schema@4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@cardano-ogmios/schema/-/schema-4.1.0.tgz#d0fb5823d71fd7741801f56880a3fedbc43be081"
@@ -913,7 +927,15 @@
     lodash-es "^4.17.21"
     ts-custom-error "^3.2.0"
 
-"@cardano-sdk/core@0.1.3":
+"@cardano-sdk/cip30@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@cardano-sdk/cip30/-/cip30-0.1.3.tgz#547b0a8697570302e46611430ea8291c5e9e7ce7"
+  dependencies:
+    "@cardano-ogmios/client" "4.1.0"
+    ts-custom-error "^3.2.0"
+    ts-log "^2.2.3"
+
+"@cardano-sdk/core@0.1.3", "@cardano-sdk/core@^0.1.3":
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@cardano-sdk/core/-/core-0.1.3.tgz#e80a98fa6b1a44128685a67c78ea3decbda09aed"
   dependencies:
@@ -921,6 +943,12 @@
     "@emurgo/cardano-serialization-lib-browser" "9.1.0"
     "@emurgo/cardano-serialization-lib-nodejs" "9.1.0"
     buffer "^6.0.3"
+
+"@cardano-sdk/util-dev@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@cardano-sdk/util-dev/-/util-dev-0.1.3.tgz#dd999901a46362281e8fd6cbab5ab9e9084ecfce"
+  dependencies:
+    "@cardano-sdk/core" "0.1.3"
 
 "@cardano-sdk/wallet@^0.1.3":
   version "0.1.3"
@@ -1490,6 +1518,10 @@
   dependencies:
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
+
+"@types/json-bigint@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/json-bigint/-/json-bigint-1.0.1.tgz#201062a6990119a8cc18023cfe1fed12fc2fc8a7"
 
 "@types/json-schema@^7.0.3", "@types/json-schema@^7.0.8":
   version "7.0.9"
@@ -2210,6 +2242,10 @@ big.js@^5.2.2:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
 
+bignumber.js@^9.0.0:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
+
 binary-extensions@^1.0.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.13.1.tgz#598afe54755b2868a5330d2aff9d4ebb53209b65"
@@ -2796,6 +2832,12 @@ create-hmac@^1.1.0, create-hmac@^1.1.4, create-hmac@^1.1.7:
     ripemd160 "^2.0.0"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
+
+cross-fetch@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.4.tgz#9723f3a3a247bf8b89039f3a380a9244e8fa2f39"
+  dependencies:
+    node-fetch "2.6.1"
 
 cross-spawn@^6.0.0, cross-spawn@^6.0.5:
   version "6.0.5"
@@ -3701,6 +3743,12 @@ fast-levenshtein@~2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
+fastq@^1.11.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.13.0.tgz#616760f88a7526bdfc596b7cab8c18938c36b98c"
+  dependencies:
+    reusify "^1.0.4"
+
 fastq@^1.6.0:
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.11.1.tgz#5d8175aae17db61947f8b162cfc7f63264d22807"
@@ -4570,6 +4618,10 @@ isomorphic-bip39@^3.0.5:
     pbkdf2 "^3.0.9"
     randombytes "^2.0.1"
 
+isomorphic-ws@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
+
 isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
@@ -5431,6 +5483,12 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
 
+json-bigint@CardanoSolutions/json-bigint#d277387d:
+  version "1.0.0"
+  resolved "https://codeload.github.com/CardanoSolutions/json-bigint/tar.gz/d277387d7750ff4e698677d0aa0db97ebb60c581"
+  dependencies:
+    bignumber.js "^9.0.0"
+
 json-parse-better-errors@^1.0.1, json-parse-better-errors@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz#bb867cfb3450e69107c131d1c514bab3dc8bcaa9"
@@ -5896,6 +5954,10 @@ nan@^2.12.1:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
 
+nanoid@^3.1.22:
+  version "3.1.29"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.29.tgz#214fb2d7a33e1a5bef4757b779dfaeb6a4e5aeb4"
+
 nanoid@^3.1.23:
   version "3.1.23"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.23.tgz#f744086ce7c2bc47ee0a8472574d5c78e4183a81"
@@ -5938,6 +6000,10 @@ no-case@^3.0.4:
   dependencies:
     lower-case "^2.0.2"
     tslib "^2.0.3"
+
+node-fetch@2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
 
 node-int64@^0.4.0:
   version "0.4.0"

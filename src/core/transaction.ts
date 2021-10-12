@@ -1,9 +1,13 @@
 import Base from "./base";
 import Account, { AccountContext } from './account';
-import { CSL } from '@cardano-sdk/core';
 import { defaultSelectionConstraints, InputSelectionParameters, ProtocolParametersForInputSelection, roundRobinRandomImprove } from '@cardano-sdk/cip2';
-import { BigNum,
-    TransactionWitnessSet, Transaction as CardanoTransaction, TransactionUnspentOutput, TransactionOutput } from "@emurgo/cardano-serialization-lib-asmjs";
+import { 
+    TransactionWitnessSet, 
+    Transaction as CardanoTransaction
+} from "@emurgo/cardano-serialization-lib-asmjs";
+import {createTransactionInternals, KeyManagement} from '@cardano-sdk/wallet';
+import { ValidityInterval } from "@cardano-sdk/core/dist/Transaction";
+import { CardanoSerializationLib, CSL } from "@cardano-sdk/core";
 
 export const enum TRANSACITON_SIZES {
     MultiAsset = 5848,
@@ -17,15 +21,15 @@ export const enum TRANSCTION_TYPES {
     WithdrawalReward,
 }
 
-interface ProtocolParametes {
-    minUtxo: BigNum,
-    linearFee: {
-        minFeeA: BigNum,
-        minFeeB: BigNum
-    },
-    maxTxSize: number,
-    poolDeposit: BigNum,
-    keyDeposit: BigNum,
+export interface ProtocolParametes extends ProtocolParametersForInputSelection {
+    // minUtxo: BigNum,
+    // linearFee: {
+    //     minFeeA: BigNum,
+    //     minFeeB: BigNum
+    // },
+    // maxTxSize: number,
+    // poolDeposit: BigNum,
+    // keyDeposit: BigNum,
     slot: number
 }
 
@@ -91,41 +95,55 @@ class Transaction extends Base {
         return txWitnessSet
     }
 
-    async build(account:AccountContext, utxos:Set<TransactionUnspentOutput>, outputs:Set<TransactionOutput>, protocolParams?: ProtocolParametes): Promise<CardanoTransaction | any> {
+    async build(account:AccountContext, 
+        keyManager: KeyManagement.KeyManager,
+        utxos:Set<CSL.TransactionUnspentOutput>, 
+        outputs:Set<CSL.TransactionOutput>, 
+        protocolParameters: ProtocolParametes): Promise<CardanoTransaction> {
 
-        console.log(account);
-        console.log(protocolParams);
+        const getRandomImprove = roundRobinRandomImprove(this.Cardano as CardanoSerializationLib);
+        const ensureValidityInterval = (
+            currentSlot: number,
+            validityInterval?: ValidityInterval
+          ): ValidityInterval =>
+            // Todo: Based this on slot duration, to equal 2hrs
+            ({ invalidHereafter: currentSlot + 3600, ...validityInterval });
 
-        const buildTxOfLength = (length: number) => async () => ({ to_bytes: () => ({ length }) } as CSL.Transaction);
+        // const validityInterval = ensureValidityInterval(tip.slot, props.options?.validityInterval);
+        const validityInterval = ensureValidityInterval(protocolParameters.slot, { invalidBefore: 3600, invalidHereafter: 260000});
 
-        const getRandomImprove = roundRobinRandomImprove(this.Cardano)
-        const protocolParameters = {
-            minFeeCoefficient: 44,
-            minFeeConstant: 155381,
-            coinsPerUtxoWord: 34482,
-            maxTxSize: 16384,
-            maxValueSize: 5000
-          } as ProtocolParametersForInputSelection;
-          
         const inputParams: InputSelectionParameters = {
             utxo : utxos,
             outputs: outputs,
-            // constraints: SelectionConstraints.mockConstraintsToConstraints()
             constraints: defaultSelectionConstraints({
                 csl: this.Cardano,
                 protocolParameters,
-                buildTx: buildTxOfLength(protocolParameters.maxTxSize!)
-            })
+                buildTx: async (inputSelection) => {
+                    console.debug('Building TX for selection constraints', inputSelection);
+                    const transactionInternals = await createTransactionInternals(this.Cardano, {
+                      changeAddress: account.paymentAddr,
+                      inputSelection,
+                      validityInterval
+                    });
+                    const witnessSet = await keyManager.signTransaction(transactionInternals.hash);
+                    return this.Cardano.Transaction.new(transactionInternals.body, witnessSet);
+                  }
+                })
         };
 
-        const data = await getRandomImprove.select(inputParams);
-        console.log(data); 
-        // results();
+        const result = await getRandomImprove.select(inputParams);
 
-        return false;
+        const transactionInternals = await createTransactionInternals(this.Cardano, {
+            changeAddress: account.paymentAddr,
+            inputSelection: result.selection,
+            validityInterval
+        });
+        const witnessSet = await keyManager.signTransaction(transactionInternals.hash);
+        return this.Cardano.Transaction.new(transactionInternals.body, witnessSet);
     
-    
-    // TODO: Refactory the whole code down.
+    }
+
+     // TODO: Refactory the whole code down. Transiction build without cardano-js-sdk
 
         //TODO: Implement multiAssetCount and CoinSelection algo
         // *** REFERENCE CODE
@@ -220,8 +238,6 @@ class Transaction extends Base {
     //     )
 
     //     return txBuilder;
-    }
-
     //TODO: Double check this code after build and integration of cardano-message-signing
     // private makeMultiAssetsPatial(changeMultiAssets:any) : MultiAsset {
     //     const policies:any = changeMultiAssets.keys();
@@ -251,7 +267,6 @@ class Transaction extends Base {
 
     //     return partialMultiAssets;
     // }
-
 }
 
 export default Transaction
