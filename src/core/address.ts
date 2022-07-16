@@ -1,4 +1,4 @@
-import { Address as CardanoAddress, ByronAddress } from "@emurgo/cardano-serialization-lib-asmjs";
+import type { Address as CardanoAddress, ByronAddress } from "@emurgo/cardano-serialization-lib-browser";
 import { CARDANO_NETWORK_ID, NETWORK_ID } from "../config/config";
 import { NetworkInfo } from "./account";
 import Base from "./base"; 

@@ -1,4 +1,4 @@
-import { Bip32PrivateKey, PrivateKey } from "@emurgo/cardano-serialization-lib-asmjs";
+import type { Bip32PrivateKey, PrivateKey } from "@emurgo/cardano-serialization-lib-browser";
 import { mnemonicToEntropy } from "bip39"
 import { NETWORK_ID } from "../config/config";
 import Utils from "../utils"

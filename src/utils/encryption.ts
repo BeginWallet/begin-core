@@ -1,6 +1,5 @@
 import cryptoRandomString from "@b58-finance/crypto-random-string";
-import { CardanoSerializationLib } from "@cardano-sdk/core";
-import Base from "../core/base";
+import Base, { CardanoType } from "../core/base";
 
 class Encryption extends Base {
 
@@ -34,4 +33,4 @@ class Encryption extends Base {
     }
 }
 
-export default (Cardano:CardanoSerializationLib) => (new Encryption(Cardano))
+export default (Cardano:CardanoType) => (new Encryption(Cardano))
