@@ -1,14 +1,18 @@
-import * as Cardano from '@emurgo/cardano-serialization-lib-asmjs';
-import { BigNum } from '@emurgo/cardano-serialization-lib-asmjs';
+import type { TransactionOutputs, TransactionUnspentOutput } from '@emurgo/cardano-serialization-lib-browser';
 
 const addr1 = 'addr_test1qpq2eurm8qy7xgprcevsfy7daxp069m7w2sf5wkfyvyfsu7y9f2r8vesfwa09rvhhfzpdlwrehl046qsuc45luqgq6vqz2d94g';
 const addr2 = 'addr_test1qqs6t4pym4ye2j5x99mlf6twwve48kw6wta4quh54muhagky9f2r8vesfwa09rvhhfzpdlwrehl046qsuc45luqgq6vqa8nufl';
 
+const CardanoLib = async () =>
+  await import('@emurgo/cardano-serialization-lib-nodejs');
+
 export namespace MockLovelace {
-  export const getMockInputsUtxos = () => {
+  export const getMockInputsUtxos = async () => {
     //Generate inputs
+    const Cardano = await CardanoLib();
   
-    const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    // const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    const inputs: TransactionUnspentOutput[] = [];
   
     let input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -19,11 +23,12 @@ export namespace MockLovelace {
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(BigNum.from_str('12214300'))
+        Cardano.Value.new(Cardano.BigNum.from_str('12214300'))
       )
     );
   
-    inputs.add(input);
+    // inputs.add(input);
+    inputs.push(input);
   
     input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -34,11 +39,11 @@ export namespace MockLovelace {
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(BigNum.from_str('14300'))
+        Cardano.Value.new(Cardano.BigNum.from_str('14300'))
       )
     );
   
-    inputs.add(input);
+    inputs.push(input);
 
     input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -49,29 +54,31 @@ export namespace MockLovelace {
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(BigNum.from_str('4300'))
+        Cardano.Value.new(Cardano.BigNum.from_str('4300'))
       )
     );
   
-    inputs.add(input);
+    inputs.push(input);
   
     return inputs;
   }
   
-  export const getMockOutputs = () => {
+  export const getMockOutputs = async () => {
     //Generate outputs
-    const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const Cardano = await CardanoLib();
+    // const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const outputs: TransactionOutputs = Cardano.TransactionOutputs.new();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(BigNum.from_str('7000'))
+      Cardano.Value.new(Cardano.BigNum.from_str('7000'))
     )
   
     outputs.add(output);
   
     output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(BigNum.from_str('7300'))
+      Cardano.Value.new(Cardano.BigNum.from_str('7300'))
     )
   
     outputs.add(output);
@@ -79,10 +86,11 @@ export namespace MockLovelace {
     return outputs
   }
 
-  export const getMockInputsUtxosSmall = () => {
+  export const getMockInputsUtxosSmall = async () => {
     //Generate inputs
-  
-    const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    const Cardano = await CardanoLib();
+    // const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    const inputs: TransactionUnspentOutput[] = [];
   
     let input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -93,11 +101,11 @@ export namespace MockLovelace {
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(BigNum.from_str('2170000'))
+        Cardano.Value.new(Cardano.BigNum.from_str('2170000'))
       )
     );
   
-    inputs.add(input);
+    inputs.push(input);
 
     input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -108,29 +116,31 @@ export namespace MockLovelace {
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(BigNum.from_str('1000000'))
+        Cardano.Value.new(Cardano.BigNum.from_str('1000000'))
       )
     );
   
-    inputs.add(input);
+    inputs.push(input);
   
     return inputs;
   }
   
-  export const getMockOutputsSmall = () => {
+  export const getMockOutputsSmall = async () => {
     //Generate outputs
-    const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const Cardano = await CardanoLib();
+    // const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const outputs: TransactionOutputs = Cardano.TransactionOutputs.new();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(BigNum.from_str('1000000'))
+      Cardano.Value.new(Cardano.BigNum.from_str('1000000'))
     )
   
     outputs.add(output);
   
     output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(BigNum.from_str('50000'))
+      Cardano.Value.new(Cardano.BigNum.from_str('50000'))
     )
   
     outputs.add(output);
@@ -138,10 +148,11 @@ export namespace MockLovelace {
     return outputs
   }
 
-  export const getMockInputsUtxosMin = () => {
+  export const getMockInputsUtxosMin = async () => {
     //Generate inputs
-  
-    const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    const Cardano = await CardanoLib();
+    // const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    const inputs: TransactionUnspentOutput[] = [];
   
     let input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -152,22 +163,24 @@ export namespace MockLovelace {
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(BigNum.from_str('2170000'))
+        Cardano.Value.new(Cardano.BigNum.from_str('2170000'))
       )
     );
   
-    inputs.add(input);
+    inputs.push(input);
   
     return inputs;
   }
   
-  export const getMockOutputsMin = () => {
+  export const getMockOutputsMin = async () => {
     //Generate outputs
-    const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const Cardano = await CardanoLib();
+    // const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const outputs: TransactionOutputs = Cardano.TransactionOutputs.new();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(BigNum.from_str('1000000'))
+      Cardano.Value.new(Cardano.BigNum.from_str('1000000'))
     )
   
     outputs.add(output);

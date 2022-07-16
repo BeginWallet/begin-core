@@ -19,6 +19,7 @@ module.exports = {
     },
   },
   transformIgnorePatterns: [
+    // "[/\\\\]node_modules[/\\\\](?!crypto-random-string|@emurgo/).+\\.js$",
     // "[/\\\\]node_modules[/\\\\](?!@emurgo/|@cardano-sdk/).+\\.js$",
     // "<rootDir>/node_modules/(?!lodash-es)",
     // "<rootDir>/node_modules/(?!es6-promisify)",
@@ -26,8 +27,9 @@ module.exports = {
     "!node_modules/"
   ],
   moduleNameMapper: {
-    "^@emurgo/(.*)$": "<rootDir>/node_modules/@emurgo/$1/cardano_serialization_lib.js",
-    // "^@b58-finance/(.*)$": "<rootDir>/node_modules/@b58-finance/$1/index.js"
+    "^@emurgo/cardano-serialization(.*)$": "<rootDir>/node_modules/@emurgo/cardano-serialization-lib-nodejs/cardano_serialization_lib.js",
+    "^@emurgo/cardano-message-signing(.*)$": "<rootDir>/node_modules/@emurgo/cardano-message-signing-nodejs/cardano_message_signing.js",
+    // "^@b58-finance/crypto-random-string$": "<rootDir>/node_modules/@b58-finance/crypto-random-string/index.js"
     // "ˆ@cardano-sdk/(.*)$": "<rootDir>/node_modules/@emurgo/$1/",
   },
 };

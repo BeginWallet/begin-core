@@ -1,10 +1,9 @@
-import { CardanoSerializationLib } from "@cardano-sdk/core"
 import Account from "./account"
 import Address from "./address"
-import Base from "./base"
+import Base, { CardanoType, MessageType }  from "./base"
 import Transaction from "./transaction"
 
-type CoreInstance = {
+export type CoreInstance = {
     Account: Account,
     Address: Address,
     Transaction: Transaction
@@ -16,11 +15,11 @@ class CoreContext extends Base {
         return {
             Account: new Account(this.Cardano),
             Address: new Address(this.Cardano),
-            Transaction: new Transaction(this.Cardano),
+            Transaction: new Transaction(this.Cardano, this.Message),
         }
     }
 }
 
-const Core = (Cardano:CardanoSerializationLib) => (new CoreContext(Cardano));
+const Core = (Cardano:CardanoType, Message?:MessageType) => (new CoreContext(Cardano, Message));
 
 export default Core

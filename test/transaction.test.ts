@@ -1,15 +1,37 @@
 import { Core } from "../src";
-import * as Cardano from '@emurgo/cardano-serialization-lib-asmjs';
+import * as CardanoBrowser from '@emurgo/cardano-serialization-lib-browser';
+import type * as CardanoLibAll from '@emurgo/cardano-serialization-lib-nodejs';
+import type * as MessageLibAll from '@emurgo/cardano-message-signing-nodejs';
 import { MockLovelace } from './test_data/mock_data_ada';
 import { NETWORK_ID } from "../src/config/config";
-import { providerStub } from "./test_data/provider_stub";
-import { KeyManagement } from "@cardano-sdk/wallet";
-import { NetworkId } from "@cardano-sdk/core/dist/Cardano/NetworkId";
-import { CardanoSerializationLib } from "@cardano-sdk/core";
-import { ProtocolParametes } from "../src/core/transaction";
+import { ProtocolParameters } from "../src/core/transaction";
 import { MockMultiAsset } from './test_data/mock_data_multiassets';
+import { CoreInstance } from "../src/core";
 
-const core = Core(Cardano).getInstance();
+const CardanoLib = async () =>
+  await import('@emurgo/cardano-serialization-lib-nodejs');
+
+type CardanoLibType = typeof CardanoLibAll;
+
+const MessageLib = async () =>
+  await import('@emurgo/cardano-message-signing-nodejs');
+
+type MessageLibType = typeof MessageLibAll;
+
+let Cardano: CardanoLibType;
+let Message: MessageLibType;
+let core: CoreInstance; // = Core(Cardano).getInstance();
+
+beforeEach(async () => {
+    Cardano = await CardanoLib();
+    Message = await MessageLib();
+    core = Core(Cardano, Message).getInstance();
+})
+
+const networkInfo = {
+    id: CardanoBrowser.NetworkInfo.testnet().network_id(),
+    name: NETWORK_ID.testnet,
+};
 
 const accountData = {
     index: 0,
@@ -55,42 +77,77 @@ describe('Transaction Verify', () => {
             networkInfo
         )
 
-        const utxos = MockLovelace.getMockInputsUtxos();
-        console.log(utxos.size);
+        const utxos = await MockLovelace.getMockInputsUtxos();
+        console.log(utxos.length);
 
-        const outputs = MockLovelace.getMockOutputs();
-        console.log(outputs.size)
+        const outputs = await MockLovelace.getMockOutputs();
+        console.log(outputs.len())
 
         const protocolParameters = {
-            ...await providerStub().currentWalletProtocolParameters(),
-            slot: 3600
+            minFeeA: Cardano.BigNum.from_str('44'),
+            minFeeB: Cardano.BigNum.from_str('155381'),
+            minUtxo: Cardano.BigNum.from_str('1000'),
+            poolDeposit: Cardano.BigNum.from_str('500000000'),
+            keyDeposit: Cardano.BigNum.from_str('2000000'),
+            maxValSize: 1000,
+            maxTxSize: 16384,
+            slot: 3600,
+            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
             // coinsPerUtxoWord: 34_482,
             // maxTxSize: 16384,
             // maxValueSize: 5000
-          } as ProtocolParametes;
+          } as ProtocolParameters;
 
         //Replace it for asm pure js
-        const csl = Cardano as CardanoSerializationLib;
-        const keyManager = KeyManagement.createInMemoryKeyManager({
-            csl,
-            mnemonicWords: KeyManagement.util.generateMnemonicWords(),
-            networkId: NetworkId.testnet,
-            password: '123'
-          });
+        // const csl = Cardano as CardanoSerializationLib;
+        // const keyManager = KeyManagement.createInMemoryKeyManager({
+        //     csl,
+        //     mnemonicWords: KeyManagement.util.generateMnemonicWords(),
+        //     networkId: NetworkId.testnet,
+        //     password: '123'
+        //   });
+
+        console.log(protocolParameters.coinsPerUtxoWord.to_str())
           
         const transaction = await core.Transaction.build(
             account,
-            keyManager,
             utxos,
             outputs,
             protocolParameters
         );
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
+        //Sign Transaction and generate txHash
+        const witnessSet = core.Transaction.sign(
+            Buffer.from(transaction.to_bytes()).toString('hex'),
+            [
+                accountData.paymentPubKeyHash,
+                accountData.paymentPubKeyHash
+            ],
+            '12345678',
+            0,
+            accountData.encryptedRootKey,
+            false
+          );
+          const txSigned = Cardano.Transaction.new(
+            transaction.body(),
+            witnessSet,
+            transaction.auxiliary_data()
+          );
+
+          console.log(Buffer.from(txSigned.to_bytes()).toString('hex'));
+          console.log("Buffer Array")
+          console.log(Buffer.from(Buffer.from(txSigned.to_bytes()).toString('hex'), 'hex').toString('hex'))
+        
+        //   const txHash = await submitTx(
+        //     Buffer.from(txSigned.to_bytes(), 'hex').toString('hex')
+        //   );
+
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(260000);
+        expect(transaction.body().ttl()).toBe(10800);
         expect(transaction.body().fee().to_str()).toContain("17");
     });
 
@@ -107,34 +164,41 @@ describe('Transaction Verify', () => {
             networkInfo
         )
 
-        const utxos = MockLovelace.getMockInputsUtxosSmall();
-        console.log(utxos.size);
+        const utxos = await MockLovelace.getMockInputsUtxosSmall();
+        console.log(utxos.length);
 
-        const outputs = MockLovelace.getMockOutputsSmall();
-        console.log(outputs.size)
+        const outputs = await MockLovelace.getMockOutputsSmall();
+        console.log(outputs.len())
 
         const protocolParameters = {
-            ...await providerStub().currentWalletProtocolParameters(),
-            slot: 3600
+            minFeeA: Cardano.BigNum.from_str('44'),
+            minFeeB: Cardano.BigNum.from_str('155381'),
+            minUtxo: Cardano.BigNum.from_str('1000000'),
+            poolDeposit: Cardano.BigNum.from_str('500000000'),
+            keyDeposit: Cardano.BigNum.from_str('2000000'),
+            maxValSize: 1000,
+            maxTxSize: 16384,
+            slot: 3600,
+            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
             // coinsPerUtxoWord: 34_482,
             // maxTxSize: 16384,
             // maxValueSize: 5000
-          } as ProtocolParametes;
+          } as ProtocolParameters;
 
         //Replace it for asm pure js
-        const csl = Cardano as CardanoSerializationLib;
-        const keyManager = KeyManagement.createInMemoryKeyManager({
-            csl,
-            mnemonicWords: KeyManagement.util.generateMnemonicWords(),
-            networkId: NetworkId.testnet,
-            password: '123'
-          });
+        // const csl = Cardano as CardanoSerializationLib;
+        // const keyManager = KeyManagement.createInMemoryKeyManager({
+        //     csl,
+        //     mnemonicWords: KeyManagement.util.generateMnemonicWords(),
+        //     networkId: NetworkId.testnet,
+        //     password: '123'
+        //   });
           
         const transaction = await core.Transaction.build(
             account,
-            keyManager,
             utxos,
             outputs,
             protocolParameters
@@ -142,7 +206,7 @@ describe('Transaction Verify', () => {
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(260000);
+        expect(transaction.body().ttl()).toBe(10800);
         expect(transaction.body().fee().to_str()).toContain("17");
     });
 
@@ -159,42 +223,50 @@ describe('Transaction Verify', () => {
             networkInfo
         )
 
-        const utxos = MockLovelace.getMockInputsUtxosMin();
-        console.log(utxos.size);
+        const utxos = await MockLovelace.getMockInputsUtxosMin();
+        console.log(utxos.length);
 
-        const outputs = MockLovelace.getMockOutputsMin();
-        console.log(outputs.size)
+        const outputs = await MockLovelace.getMockOutputsMin();
+        console.log(outputs.len())
 
         const protocolParameters = {
-            ...await providerStub().currentWalletProtocolParameters(),
-            slot: 3600
+            minFeeA: Cardano.BigNum.from_str('44'),
+            minFeeB: Cardano.BigNum.from_str('155381'),
+            minUtxo: Cardano.BigNum.from_str('1000000'),
+            poolDeposit: Cardano.BigNum.from_str('500000000'),
+            keyDeposit: Cardano.BigNum.from_str('2000000'),
+            maxValSize: 1000,
+            maxTxSize: 16384,
+            slot: 3600,
+            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
             // coinsPerUtxoWord: 34_482,
             // maxTxSize: 16384,
             // maxValueSize: 5000
-          } as ProtocolParametes;
+          } as ProtocolParameters;
 
         //Replace it for asm pure js
-        const csl = Cardano as CardanoSerializationLib;
-        const keyManager = KeyManagement.createInMemoryKeyManager({
-            csl,
-            mnemonicWords: KeyManagement.util.generateMnemonicWords(),
-            networkId: NetworkId.testnet,
-            password: '123'
-          });
+        // const csl = Cardano as CardanoSerializationLib;
+        // const keyManager = KeyManagement.createInMemoryKeyManager({
+        //     csl,
+        //     mnemonicWords: KeyManagement.util.generateMnemonicWords(),
+        //     networkId: NetworkId.testnet,
+        //     password: '123'
+        //   });
           
         const transaction = await core.Transaction.build(
             account,
-            keyManager,
             utxos,
             outputs,
             protocolParameters
         );
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
+
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(260000);
+        expect(transaction.body().ttl()).toBe(10800);
         expect(transaction.body().fee().to_str()).toContain("16");
     });
 
@@ -211,34 +283,41 @@ describe('Transaction Verify', () => {
             networkInfo
         )
 
-        const utxos = MockMultiAsset.getMockInputsUtxos();
-        console.log(utxos.size);
+        const utxos = await MockMultiAsset.getMockInputsUtxos();
+        console.log(utxos.length);
 
-        const outputs = MockMultiAsset.getMockOutputs();
-        console.log(outputs.size)
+        const outputs = await MockMultiAsset.getMockOutputs();
+        console.log(outputs.len())
 
         const protocolParameters = {
-            ...await providerStub().currentWalletProtocolParameters(),
-            slot: 3600
+            minFeeA: Cardano.BigNum.from_str('44'),
+            minFeeB: Cardano.BigNum.from_str('155381'),
+            minUtxo: Cardano.BigNum.from_str('1000000'),
+            poolDeposit: Cardano.BigNum.from_str('500000000'),
+            keyDeposit: Cardano.BigNum.from_str('2000000'),
+            maxValSize: 1000,
+            maxTxSize: 16384,
+            slot: 3600,
+            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
             // coinsPerUtxoWord: 34_482,
             // maxTxSize: 16384,
             // maxValueSize: 5000
-          } as ProtocolParametes;
+          } as ProtocolParameters;
 
         //Replace it for asm pure js
-        const csl = Cardano as CardanoSerializationLib;
-        const keyManager = KeyManagement.createInMemoryKeyManager({
-            csl,
-            mnemonicWords: KeyManagement.util.generateMnemonicWords(),
-            networkId: NetworkId.testnet,
-            password: '123'
-          });
+        // const csl = Cardano as CardanoSerializationLib;
+        // const keyManager = KeyManagement.createInMemoryKeyManager({
+        //     csl,
+        //     mnemonicWords: KeyManagement.util.generateMnemonicWords(),
+        //     networkId: NetworkId.testnet,
+        //     password: '123'
+        //   });
           
         const transaction = await core.Transaction.build(
             account,
-            keyManager,
             utxos,
             outputs,
             protocolParameters
@@ -246,7 +325,7 @@ describe('Transaction Verify', () => {
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(260000);
+        expect(transaction.body().ttl()).toBe(10800);
         expect(transaction.body().fee().to_str()).toBe("178437");
     });
 
@@ -264,30 +343,42 @@ describe('Transaction Verify', () => {
             networkInfo
         );
 
-        const utxos = MockMultiAsset.getMockInputsUtxos();
-        console.log(utxos.size);
+        const utxos = await MockMultiAsset.getMockInputsUtxos();
+        console.log(utxos.length);
 
-        const outputs = MockMultiAsset.getMockOutputsCustom('2', '20000');
-        console.log(outputs.size);
+        const outputs = await MockMultiAsset.getMockOutputsCustom('2', '20000');
+        console.log(outputs.len());
 
         const protocolParameters = {
-            ...await providerStub().currentWalletProtocolParameters(),
-            slot: 3600
-        } as ProtocolParametes;
+            minFeeA: Cardano.BigNum.from_str('44'),
+            minFeeB: Cardano.BigNum.from_str('155381'),
+            minUtxo: Cardano.BigNum.from_str('1000000'),
+            poolDeposit: Cardano.BigNum.from_str('500000000'),
+            keyDeposit: Cardano.BigNum.from_str('2000000'),
+            maxValSize: 1000,
+            maxTxSize: 16384,
+            slot: 3600,
+            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            // ...await providerStub().currentWalletProtocolParameters(),
+            // minFeeCoefficient: 44,
+            // minFeeConstant: 15_5381,
+            // coinsPerUtxoWord: 34_482,
+            // maxTxSize: 16384,
+            // maxValueSize: 5000
+          } as ProtocolParameters;
 
         //Replace it for asm pure js
-        const csl = Cardano as CardanoSerializationLib;
-        const keyManager = KeyManagement.createInMemoryKeyManager({
-            csl,
-            mnemonicWords: KeyManagement.util.generateMnemonicWords(),
-            networkId: NetworkId.testnet,
-            password: '123'
-        });
+        // const csl = Cardano as CardanoSerializationLib;
+        // const keyManager = KeyManagement.createInMemoryKeyManager({
+        //     csl,
+        //     mnemonicWords: KeyManagement.util.generateMnemonicWords(),
+        //     networkId: NetworkId.testnet,
+        //     password: '123'
+        // });
 
         try {
             await core.Transaction.build(
                 account,
-                keyManager,
                 utxos,
                 outputs,
                 protocolParameters
@@ -299,5 +390,46 @@ describe('Transaction Verify', () => {
                 expect(error).toEqual('InputSelectionError: UTxO Balance Insufficient');
             }
         }
+    })
+
+    it('Should sign a message', async () => {
+        const paymentBytesHex = '009493315cd92eb5d8c4304e67b7e16ae36d61d34502694657811a2c8e32c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dc';
+        const payload = 'This is my secret msg.'
+        const payloadHex = Buffer.from(payload).toString('hex')
+        console.log('payloadHex', payloadHex)
+        console.log('payloadHex reverse', Buffer.from(payloadHex, 'hex').toString())
+        
+        const result = await core.Transaction.signData(
+            paymentBytesHex,
+            payloadHex,
+            '12345678',
+            0,
+            accountData.encryptedRootKey,
+            networkInfo
+          );
+
+        console.log('Sign data',result);
+
+        expect(result.signature).toEqual('845846a2012767616464726573735839009493315cd92eb5d8c4304e67b7e16ae36d61d34502694657811a2c8e32c728d3861e164cab28cb8f006448139c8f1740ffb8e7aa9e5232dca166686173686564f45654686973206973206d7920736563726574206d73672e584080b60cf63fa4f2d5828241cf87547fd825bb29a69e3da0f0cbf86e7eb9097d3870bb6dd5cc4e150f7cfeba249565eaad52dcddfbae3b6d0057132df8eb50ea0f')
+    })
+
+    it('Should build delegation transaction for pool', async () => {
+        const poolId = 'pool19f6guwy97mmnxg9dz65rxyj8hq07qxud886hamyu4fgfz7dj9gl';
+        // this.Cardano.Ed25519KeyHash.from_bytes(Buffer.from(poolId, 'hex'));
+        // const test = Buffer.from(poolId.toString()).toString('hex')
+        // const poolIdHex = Cardano.EnterpriseAddress.from_address(Buffer.from(test, 'hex'));
+        // const base = Cardano.BaseAddress.from_address(address)?.to_address();
+        // const poolIdHex = Buffer.from(core.Address.getAddress(poolId), 'hex').toString('hex') //Cardano.BaseAddress.from_address(poolId).to_bytes()//core.Address.getAddress(poolId); //
+        
+        console.log('poolId', poolId)
+        // console.log('address', address)
+        // console.log('base', base)
+        // console.log('poolIdHex', poolIdHex)
+        
+        // const result = await core.Transaction.delegation(poolId);
+        
+        // console.log(result.to_bech32('pool'));
+        // console.log(Buffer.from(result.to_bytes()).toString('hex'));
+
     })
 });

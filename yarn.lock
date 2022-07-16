@@ -19,6 +19,10 @@
     tslib "^2.3.0"
     zen-observable-ts "^1.1.0"
 
+"@b58-finance/b58-coin-selection@0.1.4-beta":
+  version "0.1.4-beta"
+  resolved "https://npm.pkg.github.com/download/@b58-finance/b58-coin-selection/0.1.4-beta/6c5177e9862b73f249fa5aec0b4e5f375aa3d1948e8ab869d905e828cdce6144#84c6f3a36dc98ee720bc3abb034d04b2faebd4a3"
+
 "@b58-finance/crypto-random-string@14.0.0":
   version "14.0.0"
   resolved "https://npm.pkg.github.com/download/@b58-finance/crypto-random-string/14.0.0/8ebf5b6f854b937b39dd1eb65a1b3fe838e9d760ffcf2ceb90ce86847a4dad80#1ee8e10ee5f39beb744340c540be06bf8545d189"
@@ -901,67 +905,6 @@
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
 
-"@cardano-ogmios/client@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@cardano-ogmios/client/-/client-4.1.0.tgz#fef6f1b82027eee7a9553fb31c6d5a7b32ee4d44"
-  dependencies:
-    "@cardano-ogmios/schema" "4.1.0"
-    "@types/json-bigint" "^1.0.1"
-    cross-fetch "^3.1.4"
-    fastq "^1.11.0"
-    isomorphic-ws "^4.0.1"
-    json-bigint CardanoSolutions/json-bigint#d277387d
-    nanoid "^3.1.22"
-    ts-custom-error "^3.2.0"
-    ws "^7.4.6"
-
-"@cardano-ogmios/schema@4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@cardano-ogmios/schema/-/schema-4.1.0.tgz#d0fb5823d71fd7741801f56880a3fedbc43be081"
-
-"@cardano-sdk/cip2@0.1.3", "@cardano-sdk/cip2@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@cardano-sdk/cip2/-/cip2-0.1.3.tgz#bf6e7218df95585ef3938737c40f61e4b7ca5bdb"
-  dependencies:
-    "@cardano-sdk/core" "0.1.3"
-    lodash-es "^4.17.21"
-    ts-custom-error "^3.2.0"
-
-"@cardano-sdk/cip30@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@cardano-sdk/cip30/-/cip30-0.1.3.tgz#547b0a8697570302e46611430ea8291c5e9e7ce7"
-  dependencies:
-    "@cardano-ogmios/client" "4.1.0"
-    ts-custom-error "^3.2.0"
-    ts-log "^2.2.3"
-
-"@cardano-sdk/core@0.1.3", "@cardano-sdk/core@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@cardano-sdk/core/-/core-0.1.3.tgz#e80a98fa6b1a44128685a67c78ea3decbda09aed"
-  dependencies:
-    "@cardano-ogmios/schema" "4.1.0"
-    "@emurgo/cardano-serialization-lib-browser" "9.1.0"
-    "@emurgo/cardano-serialization-lib-nodejs" "9.1.0"
-    buffer "^6.0.3"
-
-"@cardano-sdk/util-dev@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@cardano-sdk/util-dev/-/util-dev-0.1.3.tgz#dd999901a46362281e8fd6cbab5ab9e9084ecfce"
-  dependencies:
-    "@cardano-sdk/core" "0.1.3"
-
-"@cardano-sdk/wallet@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@cardano-sdk/wallet/-/wallet-0.1.3.tgz#6dd2d5855b9bebf4e051c07b33a18348103be856"
-  dependencies:
-    "@cardano-ogmios/schema" "4.1.0"
-    "@cardano-sdk/cip2" "0.1.3"
-    "@cardano-sdk/core" "0.1.3"
-    buffer "^6.0.3"
-    isomorphic-bip39 "^3.0.5"
-    ts-custom-error "^3.2.0"
-    ts-log "^2.2.3"
-
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -969,17 +912,21 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@emurgo/cardano-serialization-lib-asmjs@^9.1.0":
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-asmjs/-/cardano-serialization-lib-asmjs-9.1.0.tgz#0a2101120c52b555142a5a238077518788da3526"
+"@emurgo/cardano-message-signing-browser@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@emurgo/cardano-message-signing-browser/-/cardano-message-signing-browser-1.0.1.tgz#fb0a481575131d15bf15bb8781cb03bd3f7d56b0"
 
-"@emurgo/cardano-serialization-lib-browser@9.1.0":
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-browser/-/cardano-serialization-lib-browser-9.1.0.tgz#2a80800608877555d1ff52ed839e7f2c8b1ace95"
+"@emurgo/cardano-message-signing-nodejs@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@emurgo/cardano-message-signing-nodejs/-/cardano-message-signing-nodejs-1.0.1.tgz#b2fa1f7541055a6c4b8e805492b1a9362bea5835"
 
-"@emurgo/cardano-serialization-lib-nodejs@9.1.0":
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-nodejs/-/cardano-serialization-lib-nodejs-9.1.0.tgz#8813b8a040c0425aab454f8ee1ba4f4709031324"
+"@emurgo/cardano-serialization-lib-browser@^10.0.4":
+  version "10.0.4"
+  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-browser/-/cardano-serialization-lib-browser-10.0.4.tgz#b3dcd32cc69e05b1e42d1ee25a60e112dc444d47"
+
+"@emurgo/cardano-serialization-lib-nodejs@^10.0.4":
+  version "10.0.4"
+  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-nodejs/-/cardano-serialization-lib-nodejs-10.0.4.tgz#e3e3530e1cdfd6540c14c4c4fe8f1be1a0055e19"
 
 "@graphql-typed-document-node/core@^3.0.0":
   version "3.1.0"
@@ -1518,10 +1465,6 @@
   dependencies:
     jest-diff "^27.0.0"
     pretty-format "^27.0.0"
-
-"@types/json-bigint@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@types/json-bigint/-/json-bigint-1.0.1.tgz#201062a6990119a8cc18023cfe1fed12fc2fc8a7"
 
 "@types/json-schema@^7.0.3", "@types/json-schema@^7.0.8":
   version "7.0.9"
@@ -2216,7 +2159,7 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
 
-base64-js@^1.0.2, base64-js@^1.3.1:
+base64-js@^1.0.2:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
 
@@ -2241,10 +2184,6 @@ bcrypt-pbkdf@^1.0.0:
 big.js@^5.2.2:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
-
-bignumber.js@^9.0.0:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
 
 binary-extensions@^1.0.0:
   version "1.13.1"
@@ -2419,13 +2358,6 @@ buffer@^4.3.0:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
     isarray "^1.0.0"
-
-buffer@^6.0.3:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-6.0.3.tgz#2ace578459cc8fbe2a70aaa8f52ee63b6a74c6c6"
-  dependencies:
-    base64-js "^1.3.1"
-    ieee754 "^1.2.1"
 
 builtin-modules@^3.1.0:
   version "3.2.0"
@@ -2832,12 +2764,6 @@ create-hmac@^1.1.0, create-hmac@^1.1.4, create-hmac@^1.1.7:
     ripemd160 "^2.0.0"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
-
-cross-fetch@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.4.tgz#9723f3a3a247bf8b89039f3a380a9244e8fa2f39"
-  dependencies:
-    node-fetch "2.6.1"
 
 cross-spawn@^6.0.0, cross-spawn@^6.0.5:
   version "6.0.5"
@@ -3743,12 +3669,6 @@ fast-levenshtein@~2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
-fastq@^1.11.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.13.0.tgz#616760f88a7526bdfc596b7cab8c18938c36b98c"
-  dependencies:
-    reusify "^1.0.4"
-
 fastq@^1.6.0:
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.11.1.tgz#5d8175aae17db61947f8b162cfc7f63264d22807"
@@ -4250,7 +4170,7 @@ icss-utils@^5.0.0, icss-utils@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/icss-utils/-/icss-utils-5.1.0.tgz#c6be6858abd013d768e98366ae47e25d5887b1ae"
 
-ieee754@^1.1.4, ieee754@^1.2.1:
+ieee754@^1.1.4:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
 
@@ -4607,20 +4527,6 @@ isobject@^2.0.0:
 isobject@^3.0.0, isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
-
-isomorphic-bip39@^3.0.5:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/isomorphic-bip39/-/isomorphic-bip39-3.0.5.tgz#15ee9115cc07e7d26162f067928efafcdced7c79"
-  dependencies:
-    "@types/node" "11.11.6"
-    buffer "^6.0.3"
-    create-hash "^1.1.0"
-    pbkdf2 "^3.0.9"
-    randombytes "^2.0.1"
-
-isomorphic-ws@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
 
 isstream@~0.1.2:
   version "0.1.2"
@@ -5483,12 +5389,6 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
 
-json-bigint@CardanoSolutions/json-bigint#d277387d:
-  version "1.0.0"
-  resolved "https://codeload.github.com/CardanoSolutions/json-bigint/tar.gz/d277387d7750ff4e698677d0aa0db97ebb60c581"
-  dependencies:
-    bignumber.js "^9.0.0"
-
 json-parse-better-errors@^1.0.1, json-parse-better-errors@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz#bb867cfb3450e69107c131d1c514bab3dc8bcaa9"
@@ -5663,10 +5563,6 @@ locate-path@^5.0.0:
   resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-5.0.0.tgz#1afba396afd676a6d42504d0a67a3a7eb9f62aa0"
   dependencies:
     p-locate "^4.1.0"
-
-lodash-es@^4.17.21:
-  version "4.17.21"
-  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
 
 lodash.debounce@^4.0.8:
   version "4.0.8"
@@ -5954,10 +5850,6 @@ nan@^2.12.1:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
 
-nanoid@^3.1.22:
-  version "3.1.29"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.29.tgz#214fb2d7a33e1a5bef4757b779dfaeb6a4e5aeb4"
-
 nanoid@^3.1.23:
   version "3.1.23"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.23.tgz#f744086ce7c2bc47ee0a8472574d5c78e4183a81"
@@ -6000,10 +5892,6 @@ no-case@^3.0.4:
   dependencies:
     lower-case "^2.0.2"
     tslib "^2.0.3"
-
-node-fetch@2.6.1:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
 
 node-int64@^0.4.0:
   version "0.4.0"
@@ -7946,10 +7834,6 @@ tr46@^2.1.0:
   dependencies:
     punycode "^2.1.1"
 
-ts-custom-error@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/ts-custom-error/-/ts-custom-error-3.2.0.tgz#ff8f80a3812bab9dc448536312da52dce1b720fb"
-
 ts-invariant@^0.9.0:
   version "0.9.1"
   resolved "https://registry.yarnpkg.com/ts-invariant/-/ts-invariant-0.9.1.tgz#87dfde9894a4ce3c7711b02b1b449e7fd7384b13"
@@ -7983,10 +7867,6 @@ ts-jest@^27.0.5:
     make-error "1.x"
     semver "7.x"
     yargs-parser "20.x"
-
-ts-log@^2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/ts-log/-/ts-log-2.2.3.tgz#4da5640fe25a9fb52642cd32391c886721318efb"
 
 ts-pnp@^1.1.6:
   version "1.2.0"

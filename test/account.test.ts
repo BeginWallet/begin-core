@@ -1,5 +1,5 @@
 import { Core } from "../src";
-import * as Cardano from '@emurgo/cardano-serialization-lib-asmjs';
+import * as Cardano from '@emurgo/cardano-serialization-lib-browser';
 import { NETWORK_ID } from "../src/config/config";
 import Utils from "../src/utils";
 

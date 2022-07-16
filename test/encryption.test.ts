@@ -1,5 +1,5 @@
 import Utils from "../src/utils";
-import * as CardanoLib from '@emurgo/cardano-serialization-lib-asmjs';
+import * as CardanoLib from '@emurgo/cardano-serialization-lib-browser';
 
 describe('Test Encryption', () => {
     it('Encrypt and Decrypt of root key', () => {

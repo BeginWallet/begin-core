@@ -1,15 +1,19 @@
-import * as Cardano from '@emurgo/cardano-serialization-lib-asmjs';
-import { BigNum } from '@emurgo/cardano-serialization-lib-asmjs';
+import type { TransactionOutputs, TransactionUnspentOutput } from '@emurgo/cardano-serialization-lib-browser';
 import { __values } from 'tslib';
 
 const addr1 = 'addr_test1qpq2eurm8qy7xgprcevsfy7daxp069m7w2sf5wkfyvyfsu7y9f2r8vesfwa09rvhhfzpdlwrehl046qsuc45luqgq6vqz2d94g';
 const addr2 = 'addr_test1qqs6t4pym4ye2j5x99mlf6twwve48kw6wta4quh54muhagky9f2r8vesfwa09rvhhfzpdlwrehl046qsuc45luqgq6vqa8nufl';
 
+const CardanoLib = async () =>
+  await import('@emurgo/cardano-serialization-lib-nodejs');
+
 export namespace MockMultiAsset {
-  export const getMockInputsUtxos = () => {
+  export const getMockInputsUtxos = async () => {
     //Generate inputs
+    const Cardano = await CardanoLib();
   
-    const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    // const inputs: Set<Cardano.TransactionUnspentOutput> = new Set();
+    const inputs: TransactionUnspentOutput[] = [];
   
     let input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
@@ -20,11 +24,11 @@ export namespace MockMultiAsset {
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(BigNum.from_str('12214300'))
+        Cardano.Value.new(Cardano.BigNum.from_str('12214300'))
       )
     );
   
-    inputs.add(input);
+    inputs.push(input);
   
     const _multiAsset = Cardano.MultiAsset.new();
     const _asset = Cardano.Assets.new();
@@ -41,7 +45,7 @@ export namespace MockMultiAsset {
       _asset
     );
 
-    const _value = Cardano.Value.new(BigNum.from_str('2000000'));
+    const _value = Cardano.Value.new(Cardano.BigNum.from_str('2000000'));
 
     _value.set_multiasset(_multiAsset);
 
@@ -64,18 +68,20 @@ export namespace MockMultiAsset {
     
     console.log(Buffer.from(_asset.keys().get(0).name()).toString('hex'))
   
-    inputs.add(input);
+    inputs.push(input);
   
     return inputs;
   }
   
-  export const getMockOutputs = () => {
+  export const getMockOutputs = async () => {
     //Generate outputs
-    const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const Cardano = await CardanoLib();
+    // const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const outputs: TransactionOutputs = Cardano.TransactionOutputs.new();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(BigNum.from_str('7300'))
+      Cardano.Value.new(Cardano.BigNum.from_str('7300'))
     )
   
     outputs.add(output);
@@ -95,7 +101,7 @@ export namespace MockMultiAsset {
       _asset
     );
 
-    const _value = Cardano.Value.new(BigNum.from_str('2000000'));
+    const _value = Cardano.Value.new(Cardano.BigNum.from_str('2000000'));
 
     _value.set_multiasset(_multiAsset);
 
@@ -113,13 +119,15 @@ export namespace MockMultiAsset {
     return outputs
   }
   
-  export const getMockOutputsCustom = (assetValue:string, adaValue:string) => {
+  export const getMockOutputsCustom = async (assetValue:string, adaValue:string) => {
     //Generate outputs
-    const outputs: Set<Cardano.TransactionOutput> = new Set();
+    const Cardano = await CardanoLib();
+    // const outputs: Set<Cardano.TransactionOutput>= new Set();
+    const outputs: TransactionOutputs = Cardano.TransactionOutputs.new();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(BigNum.from_str('7300'))
+      Cardano.Value.new(Cardano.BigNum.from_str('7300'))
     )
   
     outputs.add(output);
@@ -139,7 +147,7 @@ export namespace MockMultiAsset {
       _asset
     );
 
-    const _value = Cardano.Value.new(BigNum.from_str(adaValue));
+    const _value = Cardano.Value.new(Cardano.BigNum.from_str(adaValue));
 
     _value.set_multiasset(_multiAsset);
 
