@@ -1,0 +1,74 @@
+{
+  "version": "0.2.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "export NODE_OPTIONS=\"--max-old-space-size=8192\" && jest -c ./jest.config.js",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "@b58-finance/b58-js",
+  "repository": "git://github.com:B58-Finance/b58-js.git",
+  "author": "Francis Luz",
+  "module": "dist/b58-js.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/b58-js.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/b58-js.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-react": "^7.14.5",
+    "@emurgo/cardano-serialization-lib-browser": "^10.0.4",
+    "@emurgo/cardano-serialization-lib-nodejs": "^10.0.4",
+    "@emurgo/cardano-message-signing-browser": "^1.0.1",
+    "@emurgo/cardano-message-signing-nodejs": "^1.0.1",
+    "@size-limit/preset-small-lib": "^5.0.3",
+    "@types/jest": "^27.0.1",
+    "babel-jest": "^27.0.6",
+    "husky": "^7.0.2",
+    "jest": "^27.0.6",
+    "size-limit": "^5.0.3",
+    "ts-jest": "^27.0.5",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.4.10",
+    "@b58-finance/b58-coin-selection": "0.1.4-beta",
+    "@b58-finance/crypto-random-string": "14.0.0",
+    "bip39": "^3.0.4",
+    "graphql": "^15.5.2"
+  }
+}
