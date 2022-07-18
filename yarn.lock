@@ -920,13 +920,13 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@emurgo/cardano-message-signing-nodejs/-/cardano-message-signing-nodejs-1.0.1.tgz#b2fa1f7541055a6c4b8e805492b1a9362bea5835"
 
-"@emurgo/cardano-serialization-lib-browser@^10.0.4":
-  version "10.0.4"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-browser/-/cardano-serialization-lib-browser-10.0.4.tgz#b3dcd32cc69e05b1e42d1ee25a60e112dc444d47"
+"@emurgo/cardano-serialization-lib-browser@^11.0.0-rc.6":
+  version "11.0.0-rc.6"
+  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-browser/-/cardano-serialization-lib-browser-11.0.0-rc.6.tgz#3effa90f7bac8d3ea4b0cbcc0bdc03acf81b35d2"
 
-"@emurgo/cardano-serialization-lib-nodejs@^10.0.4":
-  version "10.0.4"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-nodejs/-/cardano-serialization-lib-nodejs-10.0.4.tgz#e3e3530e1cdfd6540c14c4c4fe8f1be1a0055e19"
+"@emurgo/cardano-serialization-lib-nodejs@^11.0.0-rc.6":
+  version "11.0.0-rc.6"
+  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-nodejs/-/cardano-serialization-lib-nodejs-11.0.0-rc.6.tgz#bef613a10f5a99610c85aff4c16d596ca9cbbbe2"
 
 "@graphql-typed-document-node/core@^3.0.0":
   version "3.1.0"
