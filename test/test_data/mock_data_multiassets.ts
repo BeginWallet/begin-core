@@ -81,7 +81,7 @@ export namespace MockMultiAsset {
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(Cardano.BigNum.from_str('7300'))
+      Cardano.Value.new(Cardano.BigNum.from_str('1300000'))
     )
   
     outputs.add(output);
@@ -127,7 +127,7 @@ export namespace MockMultiAsset {
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(Cardano.BigNum.from_str('7300'))
+      Cardano.Value.new(Cardano.BigNum.from_str('4000000'))
     )
   
     outputs.add(output);
