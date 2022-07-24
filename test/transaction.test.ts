@@ -147,8 +147,8 @@ describe('Transaction Verify', () => {
         //   );
 
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
-        expect(transaction.body().fee().to_str()).toContain("17");
+        expect(transaction.body().ttl()).toBe(25200);
+        expect(transaction.body().fee().to_str()).toContain("16");
     });
 
     it('ADA Only Small Balance - Transaction is built', async () => {
@@ -206,8 +206,8 @@ describe('Transaction Verify', () => {
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
-        expect(transaction.body().fee().to_str()).toContain("17");
+        expect(transaction.body().ttl()).toBe(25200);
+        expect(transaction.body().fee().to_str()).toContain("16");
     });
 
     it('ADA Only 1 ADA - Transaction is built', async () => {
@@ -266,7 +266,7 @@ describe('Transaction Verify', () => {
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
 
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
+        expect(transaction.body().ttl()).toBe(25200);
         expect(transaction.body().fee().to_str()).toContain("16");
     });
 
@@ -325,8 +325,8 @@ describe('Transaction Verify', () => {
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
-        expect(transaction.body().fee().to_str()).toBe("178437");
+        expect(transaction.body().ttl()).toBe(25200);
+        expect(transaction.body().fee().to_str()).toBe("168229");
     });
 
     it('Error UTxO Balance Insufficient', async () => {
@@ -346,7 +346,7 @@ describe('Transaction Verify', () => {
         const utxos = await MockMultiAsset.getMockInputsUtxos();
         console.log(utxos.length);
 
-        const outputs = await MockMultiAsset.getMockOutputsCustom('2', '20000');
+        const outputs = await MockMultiAsset.getMockOutputsCustom('2', '30000000');
         console.log(outputs.len());
 
         const protocolParameters = {
@@ -385,6 +385,7 @@ describe('Transaction Verify', () => {
             );
 
         } catch (e) {
+            console.log(e)
             if (e){
                 const error = (e as String).toString();
                 expect(error).toEqual('InputSelectionError: UTxO Balance Insufficient');

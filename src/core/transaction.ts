@@ -1,14 +1,15 @@
 import Base from "./base";
 import Account, { AccountContext, NetworkInfo } from './account';
-import type {
+import {
   TransactionWitnessSet,
   // Transaction as CardanoTransaction,
   TransactionUnspentOutput,
   TransactionOutputs,
   BigNum,
-  MultiAsset,
+  // MultiAsset,
   AuxiliaryData,
-  RewardAddress
+  RewardAddress,
+  CoinSelectionStrategyCIP2
 } from "@emurgo/cardano-serialization-lib-browser";
 import Address from "./address";
 import { DataSignError } from "../config/config";
@@ -77,7 +78,8 @@ class Transaction extends Base {
 
     const rawTx = this.Cardano.Transaction.from_bytes(Buffer.from(tx, 'hex'));
 
-    const txWitnessSet = rawTx.witness_set();
+    // const txWitnessSet = rawTx.witness_set();
+    const txWitnessSet = this.Cardano.TransactionWitnessSet.new();
     const vKeyWitnesses = this.Cardano.Vkeywitnesses.new();
     const txHash = this.Cardano.hash_transaction(rawTx.body());
 
@@ -105,12 +107,12 @@ class Transaction extends Base {
     protocolParameters: ProtocolParameters,
     auxiliaryData?: AuxiliaryData) { //: Promise<CardanoTransaction> 
 
-    const totalAssets = this.multiAssetCount(
-      outputs.get(0).amount().multiasset()!
-    );
+    // const totalAssets = this.multiAssetCount(
+    //   outputs.get(0).amount().multiasset()!
+    // );
 
     const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
-      .coins_per_utxo_word(
+      .coins_per_utxo_byte(
         protocolParameters.coinsPerUtxoWord
       )
       .fee_algo(
@@ -125,7 +127,12 @@ class Transaction extends Base {
       )
       .max_tx_size(protocolParameters.maxTxSize)
       .max_value_size(protocolParameters.maxValSize)
-      .ex_unit_prices(this.Cardano.ExUnitPrices.from_bytes(Buffer.from(parseFloat('0').toString())))
+      .ex_unit_prices(this.Cardano.ExUnitPrices.new(
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
+      ))
+      // .collateral_percentage(protocolParameters.collateralPercentage)
+      // .max_collateral_inputs(protocolParameters.maxCollateralInputs)
       .build();
 
     const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
@@ -146,30 +153,34 @@ class Transaction extends Base {
     const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
     utxos.forEach((utxo) => utxosCore.add(utxo));
 
-    txBuilder.add_inputs_from(utxosCore, 1);
+    txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
 
-    // txBuilder.balance(this.Cardano.Address.from_bech32(account.paymentAddr));
+    txBuilder.add_change_if_needed(this.Cardano.Address.from_bech32(account.paymentAddr));
 
-    const transaction = await txBuilder.construct();
+    const transaction = this.Cardano.Transaction.new(
+      txBuilder.build(),
+      this.Cardano.TransactionWitnessSet.new(),
+      txBuilder.get_auxiliary_data()
+    );
 
     return transaction;
   }
 
-  private multiAssetCount(multiAsset: MultiAsset) {
-    if (!multiAsset) return 0;
-    let count = 0;
-    const policies = multiAsset.keys();
-    for (let j = 0; j < multiAsset.len(); j++) {
-      const policy = policies.get(j);
-      const policyAssets = multiAsset.get(policy);
-      const assetNames = policyAssets!.keys();
-      for (let k = 0; k < assetNames.len(); k++) {
-        count++;
-      }
-    }
+  // private multiAssetCount(multiAsset: MultiAsset) {
+  //   if (!multiAsset) return 0;
+  //   let count = 0;
+  //   const policies = multiAsset.keys();
+  //   for (let j = 0; j < multiAsset.len(); j++) {
+  //     const policy = policies.get(j);
+  //     const policyAssets = multiAsset.get(policy);
+  //     const assetNames = policyAssets!.keys();
+  //     for (let k = 0; k < assetNames.len(); k++) {
+  //       count++;
+  //     }
+  //   }
 
-    return count;
-  };
+  //   return count;
+  // };
 
   async signData(
     address: string,
@@ -261,24 +272,6 @@ class Transaction extends Base {
     utxos: TransactionUnspentOutput[],
     protocolParameters: ProtocolParameters) {
 
-    const outputs = this.Cardano.TransactionOutputs.new();
-    outputs.add(
-      this.Cardano.TransactionOutput.new(
-        this.Cardano.Address.from_bech32(account.paymentAddr),
-        this.Cardano.Value.new(protocolParameters.keyDeposit)
-      )
-    );
-
-    const getRandomImprove = CoinSelection(this.Cardano).getInstance();
-    getRandomImprove.ProtocolParameters = protocolParameters;
-    const selection = getRandomImprove.randomImprove(
-      utxos,
-      outputs,
-      20
-    );
-
-    const inputs = selection.input;
-
     const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
       .coins_per_utxo_word(protocolParameters.coinsPerUtxoWord)
       .fee_algo(
@@ -291,18 +284,13 @@ class Transaction extends Base {
       .pool_deposit(protocolParameters.poolDeposit)
       .max_tx_size(protocolParameters.maxTxSize)
       .max_value_size(protocolParameters.maxValSize)
-      .prefer_pure_change(true)
+      .ex_unit_prices(this.Cardano.ExUnitPrices.new(
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
+      ))
       .build();
 
     const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
-    for (let i = 0; i < inputs.length; i++) {
-      const utxo = inputs[i];
-      txBuilder.add_input(
-        utxo.output().address(),
-        utxo.input(),
-        utxo.output().amount()
-      );
-    }
 
     const certificates = this.Cardano.Certificates.new();
     if (!delegation.active)
@@ -334,7 +322,17 @@ class Transaction extends Base {
     );
     txBuilder.set_certs(certificates);
 
-    txBuilder.set_ttl(protocolParameters.slot + TX.invalid_hereafter);
+    txBuilder.set_ttl_bignum(
+      this.Cardano.BigNum.from_str(
+        (protocolParameters.slot + TX.invalid_hereafter).toString()
+      )
+    );
+    
+    const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
+    utxos.forEach((utxo) => utxosCore.add(utxo));
+
+    txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
+
     txBuilder.add_change_if_needed(
       this.Cardano.Address.from_bech32(account.paymentAddr)
     );
@@ -354,23 +352,6 @@ class Transaction extends Base {
     protocolParameters: ProtocolParameters
   ) {
 
-    const outputs = this.Cardano.TransactionOutputs.new();
-    outputs.add(
-      this.Cardano.TransactionOutput.new(
-        this.Cardano.Address.from_bech32(account.paymentAddr),
-        this.Cardano.Value.new(protocolParameters.minUtxo)
-      )
-    );
-
-    const getRandomImprove = CoinSelection(this.Cardano).getInstance();
-    getRandomImprove.ProtocolParameters = protocolParameters;
-    const selection = getRandomImprove.randomImprove(
-      utxos,
-      outputs,
-      20
-    );
-
-    const inputs = selection.input;
     const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
       .coins_per_utxo_word(protocolParameters.coinsPerUtxoWord)
       .fee_algo(
@@ -383,20 +364,15 @@ class Transaction extends Base {
       .pool_deposit(protocolParameters.poolDeposit)
       .max_tx_size(protocolParameters.maxTxSize)
       .max_value_size(protocolParameters.maxValSize)
-      .prefer_pure_change(true)
+      .ex_unit_prices(this.Cardano.ExUnitPrices.new(
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
+      ))
       .build();
 
     const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
 
-    for (let i = 0; i < inputs.length; i++) {
-      const utxo = inputs[i];
-      txBuilder.add_input(
-        utxo.output().address(),
-        utxo.input(),
-        utxo.output().amount()
-      );
-    }
-
+    
     const withdrawals = this.Cardano.Withdrawals.new();
     withdrawals.insert(
       this.Cardano.RewardAddress.from_address(
@@ -407,7 +383,17 @@ class Transaction extends Base {
 
     txBuilder.set_withdrawals(withdrawals);
 
-    txBuilder.set_ttl(protocolParameters.slot + TX.invalid_hereafter);
+    txBuilder.set_ttl_bignum(
+      this.Cardano.BigNum.from_str(
+        (protocolParameters.slot + TX.invalid_hereafter).toString()
+      )
+    );
+
+    const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
+    utxos.forEach((utxo) => utxosCore.add(utxo));
+
+    txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
+    
     txBuilder.add_change_if_needed(
       this.Cardano.Address.from_bech32(account.paymentAddr)
     );
@@ -426,24 +412,6 @@ class Transaction extends Base {
     utxos: TransactionUnspentOutput[],
     protocolParameters: ProtocolParameters
   ) {
-
-    const outputs = this.Cardano.TransactionOutputs.new();
-    outputs.add(
-      this.Cardano.TransactionOutput.new(
-        this.Cardano.Address.from_bech32(account.paymentAddr),
-        this.Cardano.Value.new(this.Cardano.BigNum.from_str('0'))
-      )
-    );
-
-    const getRandomImprove = CoinSelection(this.Cardano).getInstance();
-    getRandomImprove.ProtocolParameters = protocolParameters;
-    const selection = getRandomImprove.randomImprove(
-      utxos,
-      outputs,
-      20
-    );
-
-    const inputs = selection.input;
     const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
       .coins_per_utxo_word(protocolParameters.coinsPerUtxoWord)
       .fee_algo(
@@ -456,18 +424,13 @@ class Transaction extends Base {
       .pool_deposit(protocolParameters.poolDeposit)
       .max_tx_size(protocolParameters.maxTxSize)
       .max_value_size(protocolParameters.maxValSize)
-      .prefer_pure_change(true)
+      .ex_unit_prices(this.Cardano.ExUnitPrices.new(
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
+      ))
       .build();
 
     const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
-    for (let i = 0; i < inputs.length; i++) {
-      const utxo = inputs[i];
-      txBuilder.add_input(
-        utxo.output().address(),
-        utxo.input(),
-        utxo.output().amount()
-      );
-    }
 
     if (delegation.rewards > 0) {
       const withdrawals = this.Cardano.Withdrawals.new();
@@ -497,7 +460,17 @@ class Transaction extends Base {
 
     txBuilder.set_certs(certificates);
 
-    txBuilder.set_ttl(protocolParameters.slot + TX.invalid_hereafter);
+    txBuilder.set_ttl_bignum(
+      this.Cardano.BigNum.from_str(
+        (protocolParameters.slot + TX.invalid_hereafter).toString()
+      )
+    );
+
+    const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
+    utxos.forEach((utxo) => utxosCore.add(utxo));
+
+    txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
+
     txBuilder.add_change_if_needed(
       this.Cardano.Address.from_bech32(account.paymentAddr)
     );
