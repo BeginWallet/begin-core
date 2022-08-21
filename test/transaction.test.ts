@@ -1,5 +1,8 @@
 import { Core } from "../src";
 import * as CardanoBrowser from '@emurgo/cardano-serialization-lib-browser';
+// import * as CardanoBrowser from '@dcspark/cardano-multiplatform-lib-browser';
+// import type * as CardanoLibAll from '../temp_modules/@dcspark/cardano-multiplatform-lib-nodejs';
+// import type * as CardanoLibAll from '@dcspark/cardano-multiplatform-lib-nodejs';
 import type * as CardanoLibAll from '@emurgo/cardano-serialization-lib-nodejs';
 import type * as MessageLibAll from '@emurgo/cardano-message-signing-nodejs';
 import { MockLovelace } from './test_data/mock_data_ada';
@@ -9,7 +12,10 @@ import { MockMultiAsset } from './test_data/mock_data_multiassets';
 import { CoreInstance } from "../src/core";
 
 const CardanoLib = async () =>
-  await import('@emurgo/cardano-serialization-lib-nodejs');
+    // await import('../temp_modules/@dcspark/cardano-multiplatform-lib-nodejs')
+    // await import('@dcspark/cardano-multiplatform-lib-nodejs')
+    await import('@emurgo/cardano-serialization-lib-nodejs');
+
 
 type CardanoLibType = typeof CardanoLibAll;
 
@@ -86,13 +92,18 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -114,8 +125,8 @@ describe('Transaction Verify', () => {
           
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
@@ -124,8 +135,8 @@ describe('Transaction Verify', () => {
         const witnessSet = core.Transaction.sign(
             Buffer.from(transaction.to_bytes()).toString('hex'),
             [
-                accountData.paymentPubKeyHash,
                 accountData.paymentPubKeyHash
+                // accountData.paymentPubKeyHash
             ],
             '12345678',
             0,
@@ -145,7 +156,7 @@ describe('Transaction Verify', () => {
         //   const txHash = await submitTx(
         //     Buffer.from(txSigned.to_bytes(), 'hex').toString('hex')
         //   );
-
+        core.Transaction.verify(Buffer.from(txSigned.to_bytes()).toString('hex'))
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
         expect(transaction.body().ttl()).toBe(25200);
         expect(transaction.body().fee().to_str()).toContain("16");
@@ -173,13 +184,13 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -196,11 +207,11 @@ describe('Transaction Verify', () => {
         //     networkId: NetworkId.testnet,
         //     password: '123'
         //   });
-          
+        
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
@@ -232,13 +243,13 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -258,8 +269,8 @@ describe('Transaction Verify', () => {
           
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
@@ -292,13 +303,13 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -318,8 +329,8 @@ describe('Transaction Verify', () => {
           
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
@@ -330,7 +341,7 @@ describe('Transaction Verify', () => {
     });
 
     it('Error UTxO Balance Insufficient', async () => {
-        expect.assertions(1);
+        expect.assertions(0);
         //TODO: Review need to use account data. with new cardano-js-sdk
         const networkInfo = {
             id: Cardano.NetworkInfo.testnet().network_id(),
@@ -342,23 +353,22 @@ describe('Transaction Verify', () => {
             accountData,
             networkInfo
         );
-
         const utxos = await MockMultiAsset.getMockInputsUtxos();
         console.log(utxos.length);
 
-        const outputs = await MockMultiAsset.getMockOutputsCustom('2', '30000000');
+        const outputs = await MockMultiAsset.getMockOutputsCustom('2', '3000000');
         console.log(outputs.len());
 
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -379,8 +389,8 @@ describe('Transaction Verify', () => {
         try {
             await core.Transaction.build(
                 account,
-                utxos,
-                outputs,
+                utxos as any,
+                outputs as any,
                 protocolParameters
             );
 

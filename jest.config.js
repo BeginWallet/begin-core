@@ -28,6 +28,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     "^@emurgo/cardano-serialization(.*)$": "<rootDir>/node_modules/@emurgo/cardano-serialization-lib-nodejs/cardano_serialization_lib.js",
+    "^@dcspark/cardano-multiplatform(.*)$": "<rootDir>/node_modules/@dcspark/cardano-multiplatform-lib-nodejs/cardano_multiplatform_lib.js",
     "^@emurgo/cardano-message-signing(.*)$": "<rootDir>/node_modules/@emurgo/cardano-message-signing-nodejs/cardano_message_signing.js",
     // "^@b58-finance/crypto-random-string$": "<rootDir>/node_modules/@b58-finance/crypto-random-string/index.js"
     // "ˆ@cardano-sdk/(.*)$": "<rootDir>/node_modules/@emurgo/$1/",

@@ -1,3 +1,5 @@
+// import type * as CardanoSerializerType from "../../temp_modules/@dcspark/cardano-multiplatform-lib-browser"
+// import type * as CardanoSerializerType from "@dcspark/cardano-multiplatform-lib-browser"
 import type * as CardanoSerializerType from "@emurgo/cardano-serialization-lib-browser"
 import type * as CardanoMessageType from "@emurgo/cardano-message-signing-browser"
 
