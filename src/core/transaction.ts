@@ -9,8 +9,9 @@ import {
   // MultiAsset,
   AuxiliaryData,
   // RewardAddress,
-  CoinSelectionStrategyCIP2
-} from "@emurgo/cardano-serialization-lib-browser" //"@dcspark/cardano-multiplatform-lib-browser" //"@emurgo/cardano-serialization-lib-browser" //"../../temp_modules/@dcspark/cardano-multiplatform-lib-browser";
+  CoinSelectionStrategyCIP2,
+  ChangeSelectionAlgo
+} from "@dcspark/cardano-multiplatform-lib-browser" //"../../temp_modules/@dcspark/cardano-multiplatform-lib-browser";
 import Address from "./address";
 import { DataSignError } from "../config/config";
 
@@ -110,11 +111,7 @@ class Transaction extends Base {
     utxos: TransactionUnspentOutput[],
     outputs: TransactionOutputs,
     protocolParameters: ProtocolParameters,
-    auxiliaryData?: AuxiliaryData) { //: Promise<CardanoTransaction> 
-
-    // const totalAssets = this.multiAssetCount(
-    //   outputs.get(0).amount().multiasset()!
-    // );
+    auxiliaryData?: AuxiliaryData) {
 
     const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
       .coins_per_utxo_byte(
@@ -132,45 +129,45 @@ class Transaction extends Base {
       )
       .max_tx_size(protocolParameters.maxTxSize)
       .max_value_size(protocolParameters.maxValSize)
-      // .ex_unit_prices(this.Cardano.ExUnitPrices.from_float(0,0))
       .ex_unit_prices(this.Cardano.ExUnitPrices.new(
         this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
-          // this.Cardano.BigNum.from_str(protocolParameters.priceMen.toString().split('.')[1] || '0')),
         this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
       ))
-      // .set_collateral_percentage(protocolParameters.collateralPercentage)
-      // .max_collateral_inputs(protocolParameters.maxCollateralInputs)
+      .collateral_percentage(protocolParameters.collateralPercentage)
+      .max_collateral_inputs(protocolParameters.maxCollateralInputs)
       .build();
 
     const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
 
-    txBuilder.add_output(outputs.get(0));
+    txBuilder.add_output(
+      this.Cardano.SingleOutputBuilderResult.new(outputs.get(0))
+    );
 
     if (auxiliaryData) {
       txBuilder.set_auxiliary_data(auxiliaryData);
     }
 
-    //txBuilder.set_ttl //TODO: Review it.
-    txBuilder.set_ttl_bignum(
+    txBuilder.set_ttl(
       this.Cardano.BigNum.from_str(
         (protocolParameters.slot + TX.invalid_hereafter).toString()
       )
     );
 
-    const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
-    utxos.forEach((utxo) => {utxosCore.add(utxo)});
-    // utxos.forEach((utxo) => txBuilder.add_utxo(utxo))
-    // txBuilder.select_utxos(CoinSelectionStrategyCIP2.LargestFirstMultiAsset)
+    utxos.forEach((utxo) => txBuilder
+      .add_utxo(
+        this.Cardano.SingleInputBuilder.new(utxo.input(), utxo.output()).payment_key()
+        )
+    )
+    txBuilder.select_utxos(CoinSelectionStrategyCIP2.LargestFirstMultiAsset)
+    // txBuilder.add_change_if_needed(this.Cardano.Address.from_bech32(account.paymentAddr));
 
-    txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
-
-    // txBuilder.balance(this.Cardano.Address.from_bech32(account.paymentAddr));
-    txBuilder.add_change_if_needed(this.Cardano.Address.from_bech32(account.paymentAddr));
-
-    // const transaction = txBuilder.build().build_checked()
-    const transaction = txBuilder.build_tx()
+    const transaction = txBuilder.build(
+        ChangeSelectionAlgo.Default, 
+        this.Cardano.Address.from_bech32(account.paymentAddr))
+      .build_unchecked();
+    // const transaction = txBuilder.build_tx()
     // const transaction = this.Cardano.Transaction.new(
-    //   txBuilder.build(),
+    //   txBuilder.build().body(),
     //   this.Cardano.TransactionWitnessSet.new(),
     //   txBuilder.get_auxiliary_data()
     // );
@@ -332,7 +329,7 @@ class Transaction extends Base {
   //       )
   //     )
   //   );
-  //   txBuilder.set_certs(certificates);
+  //   txBuilder.add_cert(certificates);
 
   //   txBuilder.set_ttl_bignum(
   //     this.Cardano.BigNum.from_str(

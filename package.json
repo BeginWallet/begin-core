@@ -1,5 +1,5 @@
 {
-  "version": "0.2.6-alpha.11.1",
+  "version": "0.3.0-beta.1",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -49,8 +49,8 @@
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
-    "@emurgo/cardano-serialization-lib-browser": "^11.0.1",
-    "@emurgo/cardano-serialization-lib-nodejs": "^11.0.1",
+    "@dcspark/cardano-multiplatform-lib-browser": "^3.0.0",
+    "@dcspark/cardano-multiplatform-lib-nodejs": "^3.0.0",
     "@emurgo/cardano-message-signing-browser": "^1.0.1",
     "@emurgo/cardano-message-signing-nodejs": "^1.0.1",
     "@size-limit/preset-small-lib": "^5.0.3",
