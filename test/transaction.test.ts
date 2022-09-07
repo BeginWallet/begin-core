@@ -1,9 +1,7 @@
 import { Core } from "../src";
-import * as CardanoBrowser from '@emurgo/cardano-serialization-lib-browser';
-// import * as CardanoBrowser from '@dcspark/cardano-multiplatform-lib-browser';
+import * as CardanoBrowser from '@dcspark/cardano-multiplatform-lib-browser';
 // import type * as CardanoLibAll from '../temp_modules/@dcspark/cardano-multiplatform-lib-nodejs';
-// import type * as CardanoLibAll from '@dcspark/cardano-multiplatform-lib-nodejs';
-import type * as CardanoLibAll from '@emurgo/cardano-serialization-lib-nodejs';
+import type * as CardanoLibAll from '@dcspark/cardano-multiplatform-lib-nodejs';
 import type * as MessageLibAll from '@emurgo/cardano-message-signing-nodejs';
 import { MockLovelace } from './test_data/mock_data_ada';
 import { NETWORK_ID } from "../src/config/config";
@@ -13,8 +11,7 @@ import { CoreInstance } from "../src/core";
 
 const CardanoLib = async () =>
     // await import('../temp_modules/@dcspark/cardano-multiplatform-lib-nodejs')
-    // await import('@dcspark/cardano-multiplatform-lib-nodejs')
-    await import('@emurgo/cardano-serialization-lib-nodejs');
+    await import('@dcspark/cardano-multiplatform-lib-nodejs');
 
 
 type CardanoLibType = typeof CardanoLibAll;
@@ -157,8 +154,9 @@ describe('Transaction Verify', () => {
         //     Buffer.from(txSigned.to_bytes(), 'hex').toString('hex')
         //   );
         core.Transaction.verify(Buffer.from(txSigned.to_bytes()).toString('hex'))
+        expect(txSigned.is_valid()).toBe(true)
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(25200);
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
         expect(transaction.body().fee().to_str()).toContain("16");
     });
 
@@ -217,7 +215,7 @@ describe('Transaction Verify', () => {
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(25200);
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
         expect(transaction.body().fee().to_str()).toContain("16");
     });
 
@@ -277,7 +275,7 @@ describe('Transaction Verify', () => {
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
 
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(25200);
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
         expect(transaction.body().fee().to_str()).toContain("16");
     });
 
@@ -336,7 +334,7 @@ describe('Transaction Verify', () => {
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(25200);
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
         expect(transaction.body().fee().to_str()).toBe("168229");
     });
 
@@ -442,5 +440,29 @@ describe('Transaction Verify', () => {
         // console.log(result.to_bech32('pool'));
         // console.log(Buffer.from(result.to_bytes()).toString('hex'));
 
+    })
+
+    it('Should sign and check this transaction', async () => {
+        const txHex = '84a3008182582096f90c12ef1a193d8d0ca93fe2015da68f8233acd9429047f9c9f08ee73930f2000182825839008473d8e86b22c202d8d3df24debcb6d1746dd389b5eba91e38ec739e0bee88503f60afc7730731db3bdc45a2a3ecba4469f0645dc2373ebd1a00e4e1c0825839005f7f150f55cc0e3ce6d4e2d7f6b6a5f650f2c8a7cbc1d45540f02377258566d39cabb7ec800d2789d2fe116a4d28c4911b3091bc545975b31a37f1a239021a00029075a0f5f6'
+
+        const tx = Cardano.Transaction.from_bytes(Buffer.from(txHex, 'hex'))
+
+        const witnessSet = core.Transaction.sign(
+            txHex,
+            [
+                '5f7f150f55cc0e3ce6d4e2d7f6b6a5f650f2c8a7cbc1d45540f02377'
+            ],
+            '12345678',
+            0,
+            accountData.encryptedRootKey,
+            false
+          );
+          const txSigned = Cardano.Transaction.new(
+            tx.body(),
+            witnessSet,
+            tx.auxiliary_data()
+          );
+
+          expect(txSigned.is_valid()).toBeTruthy();
     })
 });
