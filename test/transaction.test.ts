@@ -188,7 +188,11 @@ describe('Transaction Verify', () => {
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -247,7 +251,12 @@ describe('Transaction Verify', () => {
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -307,7 +316,12 @@ describe('Transaction Verify', () => {
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -366,7 +380,12 @@ describe('Transaction Verify', () => {
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('4310')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -434,11 +453,48 @@ describe('Transaction Verify', () => {
         // console.log('address', address)
         // console.log('base', base)
         // console.log('poolIdHex', poolIdHex)
+
+        expect.assertions(0);
+        //TODO: Review need to use account data. with new cardano-js-sdk
+        const networkInfo = {
+            id: Cardano.NetworkInfo.testnet().network_id(),
+            name: NETWORK_ID.testnet,
+        };
+
+        const core = Core(Cardano).getInstance();
+        const account = core.Account.getAccount(
+            accountData,
+            networkInfo
+        );
+        const utxos = await MockMultiAsset.getMockInputsUtxos();
+
+        const protocolParameters = {
+            minFeeA: Cardano.BigNum.from_str('44'),
+            minFeeB: Cardano.BigNum.from_str('155381'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
+            poolDeposit: Cardano.BigNum.from_str('500000000'),
+            keyDeposit: Cardano.BigNum.from_str('2000000'),
+            maxValSize: 1000,
+            maxTxSize: 16384,
+            slot: 3600,
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
+          } as ProtocolParameters;
         
-        // const result = await core.Transaction.delegation(poolId);
+        const result = await core.Transaction.delegation(
+            account,
+            poolId,
+            { active: false},
+            utxos,
+            protocolParameters
+        );
         
         // console.log(result.to_bech32('pool'));
-        // console.log(Buffer.from(result.to_bytes()).toString('hex'));
+        console.log(Buffer.from(result.to_bytes()).toString('hex'));
 
     })
 
@@ -464,5 +520,15 @@ describe('Transaction Verify', () => {
           );
 
           expect(txSigned.is_valid()).toBeTruthy();
+    })
+
+    it('Should generate datum transaction', async () => {
+        const field1 = "9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77"
+        const field2 = "53554e444145"
+        const field3 = "08"
+
+        console.log('field1 reverse', Buffer.from(field1, 'hex').toString('utf8'));
+        console.log('field2 reverse', Buffer.from(field2, 'hex').toString('utf8'));
+        console.log('field3 reverse', Buffer.from(field3, 'hex').toString('hex'));
     })
 });

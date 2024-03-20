@@ -10,7 +10,8 @@ import {
   AuxiliaryData,
   // RewardAddress,
   CoinSelectionStrategyCIP2,
-  ChangeSelectionAlgo
+  ChangeSelectionAlgo,
+  RewardAddress
 } from "@dcspark/cardano-multiplatform-lib-browser" //"../../temp_modules/@dcspark/cardano-multiplatform-lib-browser";
 import Address from "./address";
 import { DataSignError } from "../config/config";
@@ -115,7 +116,7 @@ class Transaction extends Base {
 
     const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
       .coins_per_utxo_byte(
-        protocolParameters.coinsPerUtxoWord
+        protocolParameters.coinsPerUtxoSize
       )
       .fee_algo(
         this.Cardano.LinearFee.new(
@@ -138,10 +139,22 @@ class Transaction extends Base {
       .build();
 
     const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
+    // let isMultiAssetTx = false;
 
-    txBuilder.add_output(
-      this.Cardano.SingleOutputBuilderResult.new(outputs.get(0))
-    );
+    for (let index = 0; index < outputs.len(); index++) {
+      const output = outputs.get(index);
+      // if (!isMultiAssetTx){
+      //   isMultiAssetTx = output.amount().multiasset() !== undefined;
+      // }
+
+      txBuilder.add_output(
+        this.Cardano.SingleOutputBuilderResult.new(output)
+      );
+    }
+
+    // txBuilder.add_output(
+    //   this.Cardano.SingleOutputBuilderResult.new(outputs.get(0))
+    // );
 
     if (auxiliaryData) {
       txBuilder.set_auxiliary_data(auxiliaryData);
@@ -153,17 +166,29 @@ class Transaction extends Base {
       )
     );
 
-    utxos.forEach((utxo) => txBuilder
-      .add_utxo(
-        this.Cardano.SingleInputBuilder.new(utxo.input(), utxo.output()).payment_key()
+    utxos
+    .forEach((utxo) =>  txBuilder.add_input(
+      this.Cardano.SingleInputBuilder.new(
+          utxo.input(), 
+          utxo.output()
         )
-    )
-    txBuilder.select_utxos(CoinSelectionStrategyCIP2.LargestFirstMultiAsset)
+        .payment_key()
+    ));
+   
+
+    // utxos
+    // .forEach((utxo) => txBuilder
+    //   .add_utxo(
+    //     this.Cardano.SingleInputBuilder.new(utxo.input(), utxo.output()).payment_key()
+    //   )
+    // )
+    // txBuilder.select_utxos(CoinSelectionStrategyCIP2.LargestFirstMultiAsset)
+
     // txBuilder.add_change_if_needed(this.Cardano.Address.from_bech32(account.paymentAddr));
 
     const transaction = txBuilder.build(
-        ChangeSelectionAlgo.Default, 
-        this.Cardano.Address.from_bech32(account.paymentAddr))
+      ChangeSelectionAlgo.Default,
+      this.Cardano.Address.from_bech32(account.paymentAddr))
       .build_unchecked();
     // const transaction = txBuilder.build_tx()
     // const transaction = this.Cardano.Transaction.new(
@@ -274,223 +299,263 @@ class Transaction extends Base {
     };
   };
 
-  // async delegation(
-  //   account: AccountContext,
-  //   poolIdBech32: string,
-  //   delegation: any,
-  //   utxos: TransactionUnspentOutput[],
-  //   protocolParameters: ProtocolParameters) {
+  async delegation(
+    account: AccountContext,
+    poolIdBech32: string,
+    delegation: any,
+    utxos: TransactionUnspentOutput[],
+    protocolParameters: ProtocolParameters) {
 
-  //   const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
-  //     .coins_per_utxo_word(protocolParameters.coinsPerUtxoWord)
-  //     .fee_algo(
-  //       this.Cardano.LinearFee.new(
-  //         protocolParameters.minFeeA,
-  //         protocolParameters.minFeeB
-  //       )
-  //     )
-  //     .key_deposit(protocolParameters.keyDeposit)
-  //     .pool_deposit(protocolParameters.poolDeposit)
-  //     .max_tx_size(protocolParameters.maxTxSize)
-  //     .max_value_size(protocolParameters.maxValSize)
-  //     .ex_unit_prices(this.Cardano.ExUnitPrices.new(
-  //       this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
-  //       this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
-  //     ))
-  //     .build();
+    const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
+      .coins_per_utxo_byte(
+        protocolParameters.coinsPerUtxoSize
+      )
+      .fee_algo(
+        this.Cardano.LinearFee.new(
+          protocolParameters.minFeeA,
+          protocolParameters.minFeeB
+        )
+      )
+      .key_deposit(protocolParameters.keyDeposit)
+      .pool_deposit(protocolParameters.poolDeposit)
+      .max_tx_size(protocolParameters.maxTxSize)
+      .max_value_size(protocolParameters.maxValSize)
+      .ex_unit_prices(this.Cardano.ExUnitPrices.new(
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
+      ))
+      .collateral_percentage(protocolParameters.collateralPercentage)
+      .max_collateral_inputs(protocolParameters.maxCollateralInputs)
+      .build();
 
-  //   const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
+    const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
 
-  //   const certificates = this.Cardano.Certificates.new();
-  //   if (!delegation.active)
-  //     certificates.add(
-  //       this.Cardano.Certificate.new_stake_registration(
-  //         this.Cardano.StakeRegistration.new(
-  //           this.Cardano.StakeCredential.from_keyhash(
-  //             this.Cardano.Ed25519KeyHash.from_bytes(
-  //               Buffer.from(account.stakePubKeyHash, 'hex')
-  //             )
-  //           )
-  //         )
-  //       )
-  //     );
+    // const certificates = this.Cardano.Certificates.new();
+    if (!delegation.active)
+      txBuilder.add_cert(
+        this.Cardano.SingleCertificateBuilder.new(
+          this.Cardano.Certificate.new_stake_registration(
+            this.Cardano.StakeRegistration.new(
+              this.Cardano.StakeCredential.from_keyhash(
+                this.Cardano.Ed25519KeyHash.from_bytes(
+                  Buffer.from(account.stakePubKeyHash, 'hex')
+                )
+              )
+            )
+          )
+        ).payment_key()
+      );
 
-  //   certificates.add(
-  //     this.Cardano.Certificate.new_stake_delegation(
-  //       this.Cardano.StakeDelegation.new(
-  //         this.Cardano.StakeCredential.from_keyhash(
-  //           this.Cardano.Ed25519KeyHash.from_bytes(
-  //             Buffer.from(account.stakePubKeyHash, 'hex')
-  //           )
-  //         ),
-  //         this.Cardano.Ed25519KeyHash.from_bech32(
-  //           poolIdBech32
-  //         )
-  //       )
-  //     )
-  //   );
-  //   txBuilder.add_cert(certificates);
+    txBuilder.add_cert(
+      this.Cardano.SingleCertificateBuilder.new(
+        this.Cardano.Certificate.new_stake_delegation(
+          this.Cardano.StakeDelegation.new(
+            this.Cardano.StakeCredential.from_keyhash(
+              this.Cardano.Ed25519KeyHash.from_bytes(
+                Buffer.from(account.stakePubKeyHash, 'hex')
+              )
+            ),
+            this.Cardano.Ed25519KeyHash.from_bech32(
+              poolIdBech32
+            )
+          )
+        )
+      ).skip_witness()
+    );
 
-  //   txBuilder.set_ttl_bignum(
-  //     this.Cardano.BigNum.from_str(
-  //       (protocolParameters.slot + TX.invalid_hereafter).toString()
-  //     )
-  //   );
-    
-  //   const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
-  //   utxos.forEach((utxo) => utxosCore.add(utxo));
+    txBuilder.set_ttl(
+      this.Cardano.BigNum.from_str(
+        (protocolParameters.slot + TX.invalid_hereafter).toString()
+      )
+    );
 
-  //   txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
+    utxos.forEach((utxo) => txBuilder
+      .add_input(
+        this.Cardano.SingleInputBuilder.new(utxo.input(), utxo.output()).payment_key()
+      )
+    )
+    txBuilder.select_utxos(CoinSelectionStrategyCIP2.RandomImprove)
 
-  //   txBuilder.add_change_if_needed(
-  //     this.Cardano.Address.from_bech32(account.paymentAddr)
-  //   );
+    // txBuilder.add_change_if_needed(
+    //   this.Cardano.Address.from_bech32(account.paymentAddr)
+    // );
 
-  //   const transaction = this.Cardano.Transaction.new(
-  //     txBuilder.build(),
-  //     this.Cardano.TransactionWitnessSet.new()
-  //   );
+    const transaction = txBuilder.build(
+      ChangeSelectionAlgo.Default,
+      this.Cardano.Address.from_bech32(account.paymentAddr))
+      .build_unchecked();
 
-  //   return transaction;
-  // }
+    // const transaction = this.Cardano.Transaction.new(
+    //   txBuilder.build(),
+    //   this.Cardano.TransactionWitnessSet.new()
+    // );
 
-  // async withdrawal(
-  //   account: AccountContext,
-  //   delegation: any,
-  //   utxos: TransactionUnspentOutput[],
-  //   protocolParameters: ProtocolParameters
-  // ) {
+    return transaction;
+  }
 
-  //   const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
-  //     .coins_per_utxo_word(protocolParameters.coinsPerUtxoWord)
-  //     .fee_algo(
-  //       this.Cardano.LinearFee.new(
-  //         protocolParameters.minFeeA,
-  //         protocolParameters.minFeeB
-  //       )
-  //     )
-  //     .key_deposit(protocolParameters.keyDeposit)
-  //     .pool_deposit(protocolParameters.poolDeposit)
-  //     .max_tx_size(protocolParameters.maxTxSize)
-  //     .max_value_size(protocolParameters.maxValSize)
-  //     .ex_unit_prices(this.Cardano.ExUnitPrices.new(
-  //       this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
-  //       this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
-  //     ))
-  //     .build();
+  async withdrawal(
+    account: AccountContext,
+    delegation: any,
+    utxos: TransactionUnspentOutput[],
+    protocolParameters: ProtocolParameters
+  ) {
 
-  //   const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
+    const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
+      .coins_per_utxo_byte(
+        protocolParameters.coinsPerUtxoSize
+      )
+      .fee_algo(
+        this.Cardano.LinearFee.new(
+          protocolParameters.minFeeA,
+          protocolParameters.minFeeB
+        )
+      )
+      .key_deposit(protocolParameters.keyDeposit)
+      .pool_deposit(protocolParameters.poolDeposit)
+      .max_tx_size(protocolParameters.maxTxSize)
+      .max_value_size(protocolParameters.maxValSize)
+      .ex_unit_prices(this.Cardano.ExUnitPrices.new(
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
+      ))
+      .collateral_percentage(protocolParameters.collateralPercentage)
+      .max_collateral_inputs(protocolParameters.maxCollateralInputs)
+      .build();
 
-    
-  //   const withdrawals = this.Cardano.Withdrawals.new();
-  //   withdrawals.insert(
-  //     this.Cardano.RewardAddress.from_address(
-  //       this.Cardano.Address.from_bech32(account.rewardAddr)
-  //     ) as RewardAddress,
-  //     this.Cardano.BigNum.from_str(delegation.rewards)
-  //   );
+    const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
 
-  //   txBuilder.set_withdrawals(withdrawals);
+    // const withdrawals = this.Cardano.Withdrawals.new();
+    // withdrawals.insert(
+    //   this.Cardano.RewardAddress.from_address(
+    //     this.Cardano.Address.from_bech32(account.rewardAddr)
+    //   ) as RewardAddress,
+    //   this.Cardano.BigNum.from_str(delegation.rewards)
+    // );
 
-  //   txBuilder.set_ttl_bignum(
-  //     this.Cardano.BigNum.from_str(
-  //       (protocolParameters.slot + TX.invalid_hereafter).toString()
-  //     )
-  //   );
+    txBuilder.add_withdrawal(
+      this.Cardano.SingleWithdrawalBuilder.new(
+        this.Cardano.RewardAddress.from_address(
+          this.Cardano.Address.from_bech32(account.rewardAddr)
+        ) as RewardAddress,
+        this.Cardano.BigNum.from_str(delegation.rewards)
+      ).payment_key()
+    );
 
-  //   const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
-  //   utxos.forEach((utxo) => utxosCore.add(utxo));
+    txBuilder.set_ttl(
+      this.Cardano.BigNum.from_str(
+        (protocolParameters.slot + TX.invalid_hereafter).toString()
+      )
+    );
 
-  //   txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
-    
-  //   txBuilder.add_change_if_needed(
-  //     this.Cardano.Address.from_bech32(account.paymentAddr)
-  //   );
+    utxos.forEach((utxo) => txBuilder
+      .add_input(
+        this.Cardano.SingleInputBuilder.new(utxo.input(), utxo.output()).payment_key()
+      )
+    )
+    txBuilder.select_utxos(CoinSelectionStrategyCIP2.RandomImprove);
 
-  //   const transaction = this.Cardano.Transaction.new(
-  //     txBuilder.build(),
-  //     this.Cardano.TransactionWitnessSet.new()
-  //   );
+    // txBuilder.add_change_if_needed(
+    //   this.Cardano.Address.from_bech32(account.paymentAddr)
+    // );
 
-  //   return transaction;
-  // };
+    const transaction = txBuilder.build(
+      ChangeSelectionAlgo.Default,
+      this.Cardano.Address.from_bech32(account.paymentAddr))
+      .build_unchecked();
 
-  // async undelegate(
-  //   account: AccountContext,
-  //   delegation: any,
-  //   utxos: TransactionUnspentOutput[],
-  //   protocolParameters: ProtocolParameters
-  // ) {
-  //   const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
-  //     .coins_per_utxo_word(protocolParameters.coinsPerUtxoWord)
-  //     .fee_algo(
-  //       this.Cardano.LinearFee.new(
-  //         protocolParameters.minFeeA,
-  //         protocolParameters.minFeeB
-  //       )
-  //     )
-  //     .key_deposit(protocolParameters.keyDeposit)
-  //     .pool_deposit(protocolParameters.poolDeposit)
-  //     .max_tx_size(protocolParameters.maxTxSize)
-  //     .max_value_size(protocolParameters.maxValSize)
-  //     .ex_unit_prices(this.Cardano.ExUnitPrices.new(
-  //       this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
-  //       this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
-  //     ))
-  //     .build();
 
-  //   const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
+    // const transaction = this.Cardano.Transaction.new(
+    //   txBuilder.build(),
+    //   this.Cardano.TransactionWitnessSet.new()
+    // );
 
-  //   if (delegation.rewards > 0) {
-  //     const withdrawals = this.Cardano.Withdrawals.new();
-  //     withdrawals.insert(
-  //       this.Cardano.RewardAddress.from_address(
-  //         this.Cardano.Address.from_bech32(account.rewardAddr)
-  //       ) as RewardAddress,
-  //       this.Cardano.BigNum.from_str(delegation.rewards)
-  //     );
+    return transaction;
+  };
 
-  //     txBuilder.set_withdrawals(withdrawals);
-  //   }
+  async undelegate(
+    account: AccountContext,
+    delegation: any,
+    utxos: TransactionUnspentOutput[],
+    protocolParameters: ProtocolParameters
+  ) {
+    const txBuilderConfig = this.Cardano.TransactionBuilderConfigBuilder.new()
+      .coins_per_utxo_byte(
+        protocolParameters.coinsPerUtxoSize
+      )
+      .fee_algo(
+        this.Cardano.LinearFee.new(
+          protocolParameters.minFeeA,
+          protocolParameters.minFeeB
+        )
+      )
+      .key_deposit(protocolParameters.keyDeposit)
+      .pool_deposit(protocolParameters.poolDeposit)
+      .max_tx_size(protocolParameters.maxTxSize)
+      .max_value_size(protocolParameters.maxValSize)
+      .ex_unit_prices(this.Cardano.ExUnitPrices.new(
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero()),
+        this.Cardano.UnitInterval.new(this.Cardano.BigNum.zero(), this.Cardano.BigNum.zero())
+      ))
+      .collateral_percentage(protocolParameters.collateralPercentage)
+      .max_collateral_inputs(protocolParameters.maxCollateralInputs)
+      .build();
 
-  //   const certificates = this.Cardano.Certificates.new();
+    const txBuilder = this.Cardano.TransactionBuilder.new(txBuilderConfig);
 
-  //   certificates.add(
-  //     this.Cardano.Certificate.new_stake_deregistration(
-  //       this.Cardano.StakeDeregistration.new(
-  //         this.Cardano.StakeCredential.from_keyhash(
-  //           this.Cardano.Ed25519KeyHash.from_bytes(
-  //             Buffer.from(account.stakePubKeyHash, 'hex')
-  //           )
-  //         )
-  //       )
-  //     )
-  //   );
+    if (delegation.rewards > 0) {
+      txBuilder.add_withdrawal(
+        this.Cardano.SingleWithdrawalBuilder.new(
+          this.Cardano.RewardAddress.from_address(
+            this.Cardano.Address.from_bech32(account.rewardAddr)
+          ) as RewardAddress,
+          this.Cardano.BigNum.from_str(delegation.rewards)
+        ).payment_key()
+      );
+    }
 
-  //   txBuilder.set_certs(certificates);
+    txBuilder.add_cert(
+      this.Cardano.SingleCertificateBuilder.new(
+        this.Cardano.Certificate.new_stake_deregistration(
+          this.Cardano.StakeDeregistration.new(
+            this.Cardano.StakeCredential.from_keyhash(
+              this.Cardano.Ed25519KeyHash.from_bytes(
+                Buffer.from(account.stakePubKeyHash, 'hex')
+              )
+            )
+          )
+        )
+      ).payment_key()
+    );
 
-  //   txBuilder.set_ttl_bignum(
-  //     this.Cardano.BigNum.from_str(
-  //       (protocolParameters.slot + TX.invalid_hereafter).toString()
-  //     )
-  //   );
+    txBuilder.set_ttl(
+      this.Cardano.BigNum.from_str(
+        (protocolParameters.slot + TX.invalid_hereafter).toString()
+      )
+    );
 
-  //   const utxosCore = this.Cardano.TransactionUnspentOutputs.new();
-  //   utxos.forEach((utxo) => utxosCore.add(utxo));
+    utxos.forEach((utxo) => txBuilder
+      .add_utxo(
+        this.Cardano.SingleInputBuilder.new(utxo.input(), utxo.output()).payment_key()
+      )
+    )
+    txBuilder.select_utxos(CoinSelectionStrategyCIP2.LargestFirstMultiAsset)
 
-  //   txBuilder.add_inputs_from(utxosCore, CoinSelectionStrategyCIP2.LargestFirstMultiAsset);
+    // txBuilder.add_change_if_needed(
+    //   this.Cardano.Address.from_bech32(account.paymentAddr)
+    // );
 
-  //   txBuilder.add_change_if_needed(
-  //     this.Cardano.Address.from_bech32(account.paymentAddr)
-  //   );
+    const transaction = txBuilder.build(
+      ChangeSelectionAlgo.Default,
+      this.Cardano.Address.from_bech32(account.paymentAddr))
+      .build_unchecked();
 
-  //   const transaction = this.Cardano.Transaction.new(
-  //     txBuilder.build(),
-  //     this.Cardano.TransactionWitnessSet.new()
-  //   );
+    // const transaction = this.Cardano.Transaction.new(
+    //   txBuilder.build(),
+    //   this.Cardano.TransactionWitnessSet.new()
+    // );
 
-  //   return transaction;
-  // };
+    return transaction;
+  };
 
 }
 

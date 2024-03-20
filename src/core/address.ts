@@ -98,7 +98,7 @@ class Address extends Base {
             addressValidator = this.validateByronAddress(address, networkInfo)
 
             if (addressValidator.validAddress !== null && !addressValidator.error) {
-                return (addressValidator.validAddress as ByronAddress).to_address().to_bytes();
+                return (addressValidator.validAddress as ByronAddress).to_bytes();
             }
         }
 

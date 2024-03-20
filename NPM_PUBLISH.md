@@ -21,7 +21,7 @@ To publish packages using GitHub you need to create under the root directory of 
 > Replace `GITHUB_TOKEN` in the code below.
 
 ```
-@b58-finance:registry=https://npm.pkg.github.com/b58-finance
+@beginwallet:registry=https://npm.pkg.github.com/beginwallet
 //npm.pkg.github.com/:_authToken=GITHUB_TOKEN
 registry=https://registry.npmjs.org
 ```
@@ -30,7 +30,7 @@ registry=https://registry.npmjs.org
 
 Run:
 ```
-npm login --scope=@b58-finance --registry=https://npm.pkg.github.com
+npm login --scope=@beginwallet --registry=https://npm.pkg.github.com
 ```
 
 Your terminal will ask for those parameters

@@ -113,7 +113,6 @@ describe('Validate Addresses', () => {
         // );
 
         const byronAddr = Cardano.ByronAddress.from_base58('2cWKMJemoBakC6HuYgMEvFiodGBhkHLxomEuRGc9JnmECWMDsMv3CitvJGZNbXD6Gqq63');
-
         const isValidByronAddress = Buffer.from(
             core.Address.isValidAddress(
                 byronAddr.to_base58(), //Output 2cWKMJemoBakC6HuYgMEvFiodGBhkHLxomEuRGc9JnmECWMDsMv3CitvJGZNbXD6Gqq63
@@ -123,6 +122,16 @@ describe('Validate Addresses', () => {
         expect(isValidByronAddress).toEqual(
             '82d818582883581cb78e58793d25b453b716a116d519567804b9ddcc6be3a802f23dc390a102451a4170cb17001a006f0174'
         );
+
+        const byronAddr2 = 'DdzFFzCqrhsyXpee8uLYLEpMCTgEXcfo9BPeDWcf4iCbYq76WboggJrfGAwRjwDKXmJoyxoNngebVPGpRuqkSJLRCGwhq1WX1yeZms1h'
+        const isValidByronAddress2 = core.Address.isValidAddress(
+            byronAddr2, 
+            {
+            id: Cardano.NetworkInfo.mainnet().network_id(),
+            name: NETWORK_ID.mainnet,
+        });
+        console.log('Mainnet B58', isValidByronAddress2)
+        console.log('Mainnet CSL', Cardano.Address.is_valid(byronAddr2))
     });
 
     it('Byron Address Bytes is valid', () => {
