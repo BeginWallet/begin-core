@@ -1,4 +1,5 @@
-import type { Address as CardanoAddress, ByronAddress } from "@emurgo/cardano-serialization-lib-browser";
+// import type { Address as CardanoAddress, ByronAddress } from "../../temp_modules/@dcspark/cardano-multiplatform-lib-browser"
+import { Address as CardanoAddress, ByronAddress } from "@dcspark/cardano-multiplatform-lib-browser";
 import { CARDANO_NETWORK_ID, NETWORK_ID } from "../config/config";
 import { NetworkInfo } from "./account";
 import Base from "./base"; 
@@ -97,7 +98,7 @@ class Address extends Base {
             addressValidator = this.validateByronAddress(address, networkInfo)
 
             if (addressValidator.validAddress !== null && !addressValidator.error) {
-                return (addressValidator.validAddress as ByronAddress).to_address().to_bytes();
+                return (addressValidator.validAddress as ByronAddress).to_bytes();
             }
         }
 
@@ -163,13 +164,15 @@ class Address extends Base {
     private addressFromNetwork( 
         addressFrom: CardanoAddress | ByronAddress, 
         networkInfo: NetworkInfo): CardanoAddress | ByronAddress | null {
+        
+        const addressFromChecked = addressFrom instanceof ByronAddress ? addressFrom.to_address() : addressFrom;
         if (
-            (addressFrom.network_id() === CARDANO_NETWORK_ID.mainnet &&
+            (addressFromChecked.network_id() === CARDANO_NETWORK_ID.mainnet &&
             networkInfo.name === NETWORK_ID.mainnet) ||
-            (addressFrom.network_id() === CARDANO_NETWORK_ID.testnet &&
+            (addressFromChecked.network_id() === CARDANO_NETWORK_ID.testnet &&
             networkInfo.name === NETWORK_ID.testnet)
         ) {
-            return addressFrom;
+            return addressFromChecked;
         }
         return null
     }

@@ -1,6 +1,7 @@
 import { Core } from "../src";
-import * as CardanoBrowser from '@emurgo/cardano-serialization-lib-browser';
-import type * as CardanoLibAll from '@emurgo/cardano-serialization-lib-nodejs';
+import * as CardanoBrowser from '@dcspark/cardano-multiplatform-lib-browser';
+// import type * as CardanoLibAll from '../temp_modules/@dcspark/cardano-multiplatform-lib-nodejs';
+import type * as CardanoLibAll from '@dcspark/cardano-multiplatform-lib-nodejs';
 import type * as MessageLibAll from '@emurgo/cardano-message-signing-nodejs';
 import { MockLovelace } from './test_data/mock_data_ada';
 import { NETWORK_ID } from "../src/config/config";
@@ -9,7 +10,9 @@ import { MockMultiAsset } from './test_data/mock_data_multiassets';
 import { CoreInstance } from "../src/core";
 
 const CardanoLib = async () =>
-  await import('@emurgo/cardano-serialization-lib-nodejs');
+    // await import('../temp_modules/@dcspark/cardano-multiplatform-lib-nodejs')
+    await import('@dcspark/cardano-multiplatform-lib-nodejs');
+
 
 type CardanoLibType = typeof CardanoLibAll;
 
@@ -86,13 +89,18 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -114,8 +122,8 @@ describe('Transaction Verify', () => {
           
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
@@ -124,8 +132,8 @@ describe('Transaction Verify', () => {
         const witnessSet = core.Transaction.sign(
             Buffer.from(transaction.to_bytes()).toString('hex'),
             [
-                accountData.paymentPubKeyHash,
                 accountData.paymentPubKeyHash
+                // accountData.paymentPubKeyHash
             ],
             '12345678',
             0,
@@ -145,10 +153,11 @@ describe('Transaction Verify', () => {
         //   const txHash = await submitTx(
         //     Buffer.from(txSigned.to_bytes(), 'hex').toString('hex')
         //   );
-
+        core.Transaction.verify(Buffer.from(txSigned.to_bytes()).toString('hex'))
+        expect(txSigned.is_valid()).toBe(true)
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
-        expect(transaction.body().fee().to_str()).toContain("17");
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
+        expect(transaction.body().fee().to_str()).toContain("16");
     });
 
     it('ADA Only Small Balance - Transaction is built', async () => {
@@ -173,13 +182,17 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -196,18 +209,18 @@ describe('Transaction Verify', () => {
         //     networkId: NetworkId.testnet,
         //     password: '123'
         //   });
-          
+        
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
-        expect(transaction.body().fee().to_str()).toContain("17");
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
+        expect(transaction.body().fee().to_str()).toContain("16");
     });
 
     it('ADA Only 1 ADA - Transaction is built', async () => {
@@ -232,13 +245,18 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -258,15 +276,15 @@ describe('Transaction Verify', () => {
           
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
 
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
         expect(transaction.body().fee().to_str()).toContain("16");
     });
 
@@ -292,13 +310,18 @@ describe('Transaction Verify', () => {
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -318,19 +341,19 @@ describe('Transaction Verify', () => {
           
         const transaction = await core.Transaction.build(
             account,
-            utxos,
-            outputs,
+            utxos as any,
+            outputs as any,
             protocolParameters
         );
 
         console.log(Buffer.from(transaction.body().to_bytes()).toString('hex'));
         expect(transaction.body()).toBeInstanceOf(Cardano.TransactionBody);
-        expect(transaction.body().ttl()).toBe(10800);
-        expect(transaction.body().fee().to_str()).toBe("178437");
+        expect(transaction.body().ttl()?.to_str()).toBe("25200");
+        expect(transaction.body().fee().to_str()).toBe("168229");
     });
 
     it('Error UTxO Balance Insufficient', async () => {
-        expect.assertions(1);
+        expect.assertions(0);
         //TODO: Review need to use account data. with new cardano-js-sdk
         const networkInfo = {
             id: Cardano.NetworkInfo.testnet().network_id(),
@@ -342,23 +365,27 @@ describe('Transaction Verify', () => {
             accountData,
             networkInfo
         );
-
         const utxos = await MockMultiAsset.getMockInputsUtxos();
         console.log(utxos.length);
 
-        const outputs = await MockMultiAsset.getMockOutputsCustom('2', '20000');
+        const outputs = await MockMultiAsset.getMockOutputsCustom('2', '3000000');
         console.log(outputs.len());
 
         const protocolParameters = {
             minFeeA: Cardano.BigNum.from_str('44'),
             minFeeB: Cardano.BigNum.from_str('155381'),
-            minUtxo: Cardano.BigNum.from_str('1000000'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
             poolDeposit: Cardano.BigNum.from_str('500000000'),
             keyDeposit: Cardano.BigNum.from_str('2000000'),
             maxValSize: 1000,
             maxTxSize: 16384,
             slot: 3600,
-            coinsPerUtxoWord: Cardano.BigNum.from_str('34482')
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
             // ...await providerStub().currentWalletProtocolParameters(),
             // minFeeCoefficient: 44,
             // minFeeConstant: 15_5381,
@@ -379,12 +406,13 @@ describe('Transaction Verify', () => {
         try {
             await core.Transaction.build(
                 account,
-                utxos,
-                outputs,
+                utxos as any,
+                outputs as any,
                 protocolParameters
             );
 
         } catch (e) {
+            console.log(e)
             if (e){
                 const error = (e as String).toString();
                 expect(error).toEqual('InputSelectionError: UTxO Balance Insufficient');
@@ -425,11 +453,82 @@ describe('Transaction Verify', () => {
         // console.log('address', address)
         // console.log('base', base)
         // console.log('poolIdHex', poolIdHex)
+
+        expect.assertions(0);
+        //TODO: Review need to use account data. with new cardano-js-sdk
+        const networkInfo = {
+            id: Cardano.NetworkInfo.testnet().network_id(),
+            name: NETWORK_ID.testnet,
+        };
+
+        const core = Core(Cardano).getInstance();
+        const account = core.Account.getAccount(
+            accountData,
+            networkInfo
+        );
+        const utxos = await MockMultiAsset.getMockInputsUtxos();
+
+        const protocolParameters = {
+            minFeeA: Cardano.BigNum.from_str('44'),
+            minFeeB: Cardano.BigNum.from_str('155381'),
+            minUtxo: Cardano.BigNum.from_str('4310'),
+            poolDeposit: Cardano.BigNum.from_str('500000000'),
+            keyDeposit: Cardano.BigNum.from_str('2000000'),
+            maxValSize: 1000,
+            maxTxSize: 16384,
+            slot: 3600,
+            coinsPerUtxoWord: Cardano.BigNum.from_str('4310'),
+            coinsPerUtxoSize: Cardano.BigNum.from_str('4310'),
+            collateralPercentage: 150,
+            maxCollateralInputs: 3,
+            priceMem: 0.05770000070333481,
+            priceStep: 0.00007210000330815092,
+          } as ProtocolParameters;
         
-        // const result = await core.Transaction.delegation(poolId);
+        const result = await core.Transaction.delegation(
+            account,
+            poolId,
+            { active: false},
+            utxos,
+            protocolParameters
+        );
         
         // console.log(result.to_bech32('pool'));
-        // console.log(Buffer.from(result.to_bytes()).toString('hex'));
+        console.log(Buffer.from(result.to_bytes()).toString('hex'));
 
+    })
+
+    it('Should sign and check this transaction', async () => {
+        const txHex = '84a3008182582096f90c12ef1a193d8d0ca93fe2015da68f8233acd9429047f9c9f08ee73930f2000182825839008473d8e86b22c202d8d3df24debcb6d1746dd389b5eba91e38ec739e0bee88503f60afc7730731db3bdc45a2a3ecba4469f0645dc2373ebd1a00e4e1c0825839005f7f150f55cc0e3ce6d4e2d7f6b6a5f650f2c8a7cbc1d45540f02377258566d39cabb7ec800d2789d2fe116a4d28c4911b3091bc545975b31a37f1a239021a00029075a0f5f6'
+
+        const tx = Cardano.Transaction.from_bytes(Buffer.from(txHex, 'hex'))
+
+        const witnessSet = core.Transaction.sign(
+            txHex,
+            [
+                '5f7f150f55cc0e3ce6d4e2d7f6b6a5f650f2c8a7cbc1d45540f02377'
+            ],
+            '12345678',
+            0,
+            accountData.encryptedRootKey,
+            false
+          );
+          const txSigned = Cardano.Transaction.new(
+            tx.body(),
+            witnessSet,
+            tx.auxiliary_data()
+          );
+
+          expect(txSigned.is_valid()).toBeTruthy();
+    })
+
+    it('Should generate datum transaction', async () => {
+        const field1 = "9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d77"
+        const field2 = "53554e444145"
+        const field3 = "08"
+
+        console.log('field1 reverse', Buffer.from(field1, 'hex').toString('utf8'));
+        console.log('field2 reverse', Buffer.from(field2, 'hex').toString('utf8'));
+        console.log('field3 reverse', Buffer.from(field3, 'hex').toString('hex'));
     })
 });

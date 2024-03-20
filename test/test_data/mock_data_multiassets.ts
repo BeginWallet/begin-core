@@ -1,11 +1,14 @@
-import type { TransactionOutputs, TransactionUnspentOutput } from '@emurgo/cardano-serialization-lib-browser';
+// import type { TransactionOutputs, TransactionUnspentOutput } from '../../temp_modules/@dcspark/cardano-multiplatform-lib-browser';
+import type { TransactionOutputs, TransactionUnspentOutput } from '@dcspark/cardano-multiplatform-lib-browser';
+ 
 import { __values } from 'tslib';
 
 const addr1 = 'addr_test1qpq2eurm8qy7xgprcevsfy7daxp069m7w2sf5wkfyvyfsu7y9f2r8vesfwa09rvhhfzpdlwrehl046qsuc45luqgq6vqz2d94g';
 const addr2 = 'addr_test1qqs6t4pym4ye2j5x99mlf6twwve48kw6wta4quh54muhagky9f2r8vesfwa09rvhhfzpdlwrehl046qsuc45luqgq6vqa8nufl';
 
 const CardanoLib = async () =>
-  await import('@emurgo/cardano-serialization-lib-nodejs');
+  // await import('../../temp_modules/@dcspark/cardano-multiplatform-lib-nodejs')
+  await import('@dcspark/cardano-multiplatform-lib-nodejs')
 
 export namespace MockMultiAsset {
   export const getMockInputsUtxos = async () => {
@@ -20,7 +23,7 @@ export namespace MockMultiAsset {
         Cardano.TransactionHash.from_bytes(
           Buffer.from('bc37156be94099045706843d4c6663ffc0feb67ee76f91165b4ba37cde55c57e', 'hex')
         ),
-        0
+        Cardano.BigNum.zero()
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
@@ -55,7 +58,7 @@ export namespace MockMultiAsset {
         Cardano.TransactionHash.from_bytes(
           Buffer.from('b70dc9e051913b9b4a34b95cf518041c00ac1dee73ba35e77b0badb1f156ff33', 'hex')
         ),
-        0
+        Cardano.BigNum.zero()
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
@@ -81,7 +84,7 @@ export namespace MockMultiAsset {
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(Cardano.BigNum.from_str('7300'))
+      Cardano.Value.new(Cardano.BigNum.from_str('1300000'))
     )
   
     outputs.add(output);
@@ -127,7 +130,7 @@ export namespace MockMultiAsset {
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(Cardano.BigNum.from_str('7300'))
+      Cardano.Value.new(Cardano.BigNum.from_str('4000000'))
     )
   
     outputs.add(output);

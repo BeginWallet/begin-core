@@ -912,6 +912,14 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@dcspark/cardano-multiplatform-lib-browser@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-browser/-/cardano-multiplatform-lib-browser-3.0.0.tgz#3de3beacbb176d0915950cbd3c2778fcc09dafdc"
+
+"@dcspark/cardano-multiplatform-lib-nodejs@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-nodejs/-/cardano-multiplatform-lib-nodejs-3.0.0.tgz#28eef6593030a7b0bb69c00258c6d9bf7232d0c8"
+
 "@emurgo/cardano-message-signing-browser@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@emurgo/cardano-message-signing-browser/-/cardano-message-signing-browser-1.0.1.tgz#fb0a481575131d15bf15bb8781cb03bd3f7d56b0"
@@ -919,14 +927,6 @@
 "@emurgo/cardano-message-signing-nodejs@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@emurgo/cardano-message-signing-nodejs/-/cardano-message-signing-nodejs-1.0.1.tgz#b2fa1f7541055a6c4b8e805492b1a9362bea5835"
-
-"@emurgo/cardano-serialization-lib-browser@^10.0.4":
-  version "10.0.4"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-browser/-/cardano-serialization-lib-browser-10.0.4.tgz#b3dcd32cc69e05b1e42d1ee25a60e112dc444d47"
-
-"@emurgo/cardano-serialization-lib-nodejs@^10.0.4":
-  version "10.0.4"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-nodejs/-/cardano-serialization-lib-nodejs-10.0.4.tgz#e3e3530e1cdfd6540c14c4c4fe8f1be1a0055e19"
 
 "@graphql-typed-document-node/core@^3.0.0":
   version "3.1.0"
