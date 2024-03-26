@@ -2,7 +2,7 @@
 
 This page describes our use of NPM packages for internal code sharing.
 
-In this initial phase, we're using *Private* repos, and for that, we need to use the Github Packages solution.
+In this initial phase, we're using Github Packages solution for this project.
 
 ## Get a Personal Access Token
 
@@ -37,7 +37,7 @@ Your terminal will ask for those parameters
 ```
 Username: YOUR_GITHUB_USERNAME
 Password: GITHUB_TOKEN
-Email (this IS public): contact@b58.finance
+Email (this IS public): <name>@begin.is
 ```
 
 ## Publish
@@ -60,16 +60,16 @@ To use the packages you have published you need to create in the root directory 
 ```
 //npm.pkg.github.com/:_authToken=GITHUB_TOKEN
 
-@b58-finance:registry=https://npm.pkg.github.com
+@beginwallet:registry=https://npm.pkg.github.com
 ```
 
 To add our packages for example you can use
 ```
-npm install -save @b58-finance/b58-js
+npm install -save @beginwallet/core
 
 OR
 
-yarn add @b58-finance/b58-js
+yarn add @beginwallet/core
 ```
 
 ### References

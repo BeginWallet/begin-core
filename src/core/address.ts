@@ -1,5 +1,5 @@
 // import type { Address as CardanoAddress, ByronAddress } from "../../temp_modules/@dcspark/cardano-multiplatform-lib-browser"
-import { Address as CardanoAddress, ByronAddress } from "@dcspark/cardano-multiplatform-lib-browser";
+import type { Address as CardanoAddress, ByronAddress } from "@dcspark/cardano-multiplatform-lib-browser";
 import { CARDANO_NETWORK_ID, NETWORK_ID } from "../config/config";
 import { NetworkInfo } from "./account";
 import Base from "./base"; 
@@ -137,6 +137,7 @@ class Address extends Base {
 
             validAddress = this.addressFromNetwork(addressFrom, networkInfo);
         } catch (err) {
+            // console.error(err)
             error = true
         }
 
@@ -155,6 +156,7 @@ class Address extends Base {
             }
             validAddress = this.addressFromNetwork(addressFrom, networkInfo);
         } catch (err) {
+            // console.error(err)
             error = true
         }
 
@@ -165,7 +167,7 @@ class Address extends Base {
         addressFrom: CardanoAddress | ByronAddress, 
         networkInfo: NetworkInfo): CardanoAddress | ByronAddress | null {
         
-        const addressFromChecked = addressFrom instanceof ByronAddress ? addressFrom.to_address() : addressFrom;
+        const addressFromChecked = addressFrom instanceof this.Cardano.ByronAddress ? addressFrom.to_address() : addressFrom;
         if (
             (addressFromChecked.network_id() === CARDANO_NETWORK_ID.mainnet &&
             networkInfo.name === NETWORK_ID.mainnet) ||

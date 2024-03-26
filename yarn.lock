@@ -912,21 +912,25 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@dcspark/cardano-multiplatform-lib-browser@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-browser/-/cardano-multiplatform-lib-browser-3.0.0.tgz#3de3beacbb176d0915950cbd3c2778fcc09dafdc"
+"@dcspark/cardano-multiplatform-lib-browser@3.1.2":
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-browser/-/cardano-multiplatform-lib-browser-3.1.2.tgz#1495d57b6d129c50a87bc838c11d0b7d7ad6939d"
+  integrity sha512-BDIF33nqEKAGn72+ESD1fLgnWCZJbPWnVKHr0cy7Al2zhvM30rGsajcJNHLPh2XXZQh1H35fBiHHR2uUyZRRpw==
 
-"@dcspark/cardano-multiplatform-lib-nodejs@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-nodejs/-/cardano-multiplatform-lib-nodejs-3.0.0.tgz#28eef6593030a7b0bb69c00258c6d9bf7232d0c8"
+"@dcspark/cardano-multiplatform-lib-nodejs@3.1.2":
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-nodejs/-/cardano-multiplatform-lib-nodejs-3.1.2.tgz#2f53bb877133fd2919b5f3c3f8c20f58b061078d"
+  integrity sha512-bfFI7ljC8El+yj4kG2G7GXcoHHhWJyJKonJ64H3Kcbns4+tHOTy525d1q/u4+hG+G42JPw4Zj5CFIBLv5GLMxg==
 
-"@emurgo/cardano-message-signing-browser@^1.0.1":
+"@emurgo/cardano-message-signing-browser@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@emurgo/cardano-message-signing-browser/-/cardano-message-signing-browser-1.0.1.tgz#fb0a481575131d15bf15bb8781cb03bd3f7d56b0"
+  integrity sha512-yC4Ymq44WR0bXO1wzxCoyc2W/RD1KSAla0oYhin7IYoVkp2raGp8wt7QNF4pDdNnTcejn5fyPyYY9dL4666H1w==
 
-"@emurgo/cardano-message-signing-nodejs@^1.0.1":
+"@emurgo/cardano-message-signing-nodejs@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@emurgo/cardano-message-signing-nodejs/-/cardano-message-signing-nodejs-1.0.1.tgz#b2fa1f7541055a6c4b8e805492b1a9362bea5835"
+  integrity sha512-PoKh1tQnJX18f8iEr8Jk1KXxKCn9eqaSslMI1pyOJvYRJhQVDLCh0+9YReufjp0oFJIY1ShcrR+4/WnECVZUKQ==
 
 "@graphql-typed-document-node/core@^3.0.0":
   version "3.1.0"
