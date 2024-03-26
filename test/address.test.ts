@@ -1,11 +1,33 @@
 import { Core } from "../src";
 import * as Cardano from '@dcspark/cardano-multiplatform-lib-browser';
+import {
+    TransactionInput,
+    TransactionOutput,
+    TransactionUnspentOutput,
+    Value,
+    Address,
+    BigNum,
+    TransactionHash,
+    Assets,
+    AssetName,
+    MultiAsset,
+    ScriptHash,
+    NetworkInfo,
+    ByronAddress,
+    BaseAddress,
+    RewardAddress,
+  } from '@dcspark/cardano-multiplatform-lib-browser';
 import { NETWORK_ID } from "../src/config/config";
 import { ADDRESS_TYPE } from "../src/core/address";
 
 const networkInfo = {
     id: Cardano.NetworkInfo.testnet().network_id(),
     name: NETWORK_ID.testnet,
+};
+
+const networkInfoMainnet = {
+    id: Cardano.NetworkInfo.mainnet().network_id(),
+    name: NETWORK_ID.mainnet,
 };
 
 describe('Get Addresses from Bech32', () => {
@@ -51,6 +73,37 @@ describe('Extract Key Hash from Addresses', () => {
         expect(rewardAddr).toContain(ADDRESS_TYPE.Reward);
         expect(rewardAddr).toEqual('hrew_1xtrj35uxrctye2egew8sqezgzwwg796ql7uw02572gedcue5x6t'); 
     });
+
+    it('Reward Mainnet Address returned', () => {
+        const rewarBytesHex = 'e14faef712a5c7fd4397628537e8567850138992b2fcbc44e4acf9a48b'
+
+        const instance = {
+            Address,
+            BigNum,
+            Value,
+            Assets,
+            AssetName,
+            MultiAsset,
+            ScriptHash,
+            TransactionHash,
+            TransactionInput,
+            TransactionOutput,
+            TransactionUnspentOutput,
+            NetworkInfo,
+            ByronAddress,
+            BaseAddress,
+            RewardAddress,
+          };
+        
+        const core = Core(instance as any).getInstance();
+        const rewardAddr = core.Address.extractKeyHash(
+            rewarBytesHex,
+            networkInfoMainnet
+        );
+
+        expect(rewardAddr).toContain(ADDRESS_TYPE.Reward);
+        expect(rewardAddr).toEqual('hrew_1f7h0wy49cl7589mzs5m7s4nc2qfcny4jlj7yfe9vlxjgkv3kp3j'); 
+    });
 });
 
 describe('Validate Addresses', () => {
@@ -91,6 +144,19 @@ describe('Validate Addresses', () => {
             networkInfo);
 
         expect(isValidPaymentAddr).toBeTruthy();
+        expect(isValidRewardAddr).toBeTruthy();
+    });
+
+    it('Bytes Mainnet Address is valid', () => {
+        const rewarBytesHex = 'e14faef712a5c7fd4397628537e8567850138992b2fcbc44e4acf9a48b';
+
+        const core = Core(Cardano).getInstance();
+        
+
+        const isValidRewardAddr = core.Address.isValidAddress(
+            Buffer.from(rewarBytesHex, 'hex'), 
+            networkInfoMainnet);
+
         expect(isValidRewardAddr).toBeTruthy();
     });
 
