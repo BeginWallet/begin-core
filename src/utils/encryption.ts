@@ -9,7 +9,7 @@ class Encryption extends Base {
         const saltHex = cryptoRandomString({ length: 2 * 32 });
         const nonceHex = cryptoRandomString({ length: 2 * 12 });
         
-        return this.Cardano.encrypt_with_password(
+        return this.Cardano.emip3_encrypt_with_password(
             passwordHex,
             saltHex,
             nonceHex,
@@ -20,7 +20,7 @@ class Encryption extends Base {
     decryptWithPassword(password: string, encryptedData:string): string {
         try {
             const passwordHex = Buffer.from(password, 'utf8').toString('hex');
-            const decryptedHex = this.Cardano.decrypt_with_password(
+            const decryptedHex = this.Cardano.emip3_decrypt_with_password(
                 passwordHex,
                 encryptedData
             );

@@ -1,5 +1,5 @@
 // import type { TransactionOutputs, TransactionUnspentOutput } from '../../temp_modules/@dcspark/cardano-multiplatform-lib-browser';
-import type { TransactionOutputs, TransactionUnspentOutput } from '@dcspark/cardano-multiplatform-lib-browser';
+import type { TransactionOutputList, TransactionUnspentOutput } from '@dcspark/cardano-multiplatform-lib-browser';
  
 import { __values } from 'tslib';
 
@@ -20,45 +20,43 @@ export namespace MockMultiAsset {
   
     let input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
-        Cardano.TransactionHash.from_bytes(
+        Cardano.TransactionHash.from_raw_bytes(
           Buffer.from('bc37156be94099045706843d4c6663ffc0feb67ee76f91165b4ba37cde55c57e', 'hex')
         ),
-        Cardano.BigNum.zero()
+        0n
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
-        Cardano.Value.new(Cardano.BigNum.from_str('12214300'))
+        Cardano.Value.new(Cardano.BigInteger.from_str('12214300').as_u64() || 0n, Cardano.MultiAsset.new())
       )
     );
   
     inputs.push(input);
   
     const _multiAsset = Cardano.MultiAsset.new();
-    const _asset = Cardano.Assets.new();
+    const _asset = Cardano.MapAssetNameToCoin.new();
     _asset.insert(
-      Cardano.AssetName.new(
+      Cardano.AssetName.from_raw_bytes(
         Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
       ),
-      Cardano.BigNum.from_str('1')
+      1n
     );
-    _multiAsset.insert(
-      Cardano.ScriptHash.from_bytes(
+    _multiAsset.insert_assets(
+      Cardano.ScriptHash.from_raw_bytes(
         Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
       ),
       _asset
     );
 
-    const _value = Cardano.Value.new(Cardano.BigNum.from_str('2000000'));
-
-    _value.set_multiasset(_multiAsset);
+    const _value = Cardano.Value.new(Cardano.BigInteger.from_str('2000000').as_u64() || 0n, _multiAsset);
 
     //Cardano.Value.new(BigNum.from_str('2000000'))
     input = Cardano.TransactionUnspentOutput.new(
       Cardano.TransactionInput.new(
-        Cardano.TransactionHash.from_bytes(
+        Cardano.TransactionHash.from_raw_bytes(
           Buffer.from('b70dc9e051913b9b4a34b95cf518041c00ac1dee73ba35e77b0badb1f156ff33', 'hex')
         ),
-        Cardano.BigNum.zero()
+        0n
       ),
       Cardano.TransactionOutput.new(
         Cardano.Address.from_bech32(addr1), // Cardano.Address.from_bytes(Buffer.from(addr1, 'hex'))
@@ -66,10 +64,10 @@ export namespace MockMultiAsset {
       )
     );
 
-    if (input.output().amount().multiasset())
-      console.log(input.output().amount().multiasset())
+    if (input.output().amount().multi_asset())
+      console.log(input.output().amount().multi_asset())
     
-    console.log(Buffer.from(_asset.keys().get(0).name()).toString('hex'))
+    console.log(Buffer.from(_asset.keys().get(0).to_raw_bytes()).toString('hex'))
   
     inputs.push(input);
   
@@ -80,33 +78,29 @@ export namespace MockMultiAsset {
     //Generate outputs
     const Cardano = await CardanoLib();
     // const outputs: Set<Cardano.TransactionOutput> = new Set();
-    const outputs: TransactionOutputs = Cardano.TransactionOutputs.new();
+    const outputs: TransactionOutputList = Cardano.TransactionOutputList.new();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(Cardano.BigNum.from_str('1300000'))
+      Cardano.Value.new(Cardano.BigInteger.from_str('1300000').as_u64() || 0n, Cardano.MultiAsset.new())
     )
   
     outputs.add(output);
 
     const _multiAsset = Cardano.MultiAsset.new();
-    const _asset = Cardano.Assets.new();
+    const _asset = Cardano.MapAssetNameToCoin.new();
     _asset.insert(
-      Cardano.AssetName.new(
-        Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
-      ),
-      Cardano.BigNum.from_str('1')
+      Cardano.AssetName.from_hex('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7'),
+      1n
     );
-    _multiAsset.insert(
-      Cardano.ScriptHash.from_bytes(
-        Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
+    _multiAsset.insert_assets(
+      Cardano.ScriptHash.from_hex(
+        '6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7'
       ),
       _asset
     );
 
-    const _value = Cardano.Value.new(Cardano.BigNum.from_str('2000000'));
-
-    _value.set_multiasset(_multiAsset);
+    const _value = Cardano.Value.new(Cardano.BigInteger.from_str('2000000').as_u64() || 2n, Cardano.MultiAsset.new());
 
     //Cardano.Value.new(BigNum.from_str('2000000'))
   
@@ -115,7 +109,7 @@ export namespace MockMultiAsset {
       _value
     )
 
-    console.log(output.amount().coin().to_str())
+    console.log(output.amount().coin().toString())
   
     outputs.add(output);
   
@@ -126,33 +120,31 @@ export namespace MockMultiAsset {
     //Generate outputs
     const Cardano = await CardanoLib();
     // const outputs: Set<Cardano.TransactionOutput>= new Set();
-    const outputs: TransactionOutputs = Cardano.TransactionOutputs.new();
+    const outputs: TransactionOutputList = Cardano.TransactionOutputList.new();
   
     let output = Cardano.TransactionOutput.new(
       Cardano.Address.from_bech32(addr2), // Cardano.Address.from_bytes(Buffer.from(addr2, 'hex'))
-      Cardano.Value.new(Cardano.BigNum.from_str('4000000'))
+      Cardano.Value.new(Cardano.BigInteger.from_str('4000000').as_u64() || 4n, Cardano.MultiAsset.new())
     )
   
     outputs.add(output);
 
     const _multiAsset = Cardano.MultiAsset.new();
-    const _asset = Cardano.Assets.new();
+    const _asset = Cardano.MapAssetNameToCoin.new();
     _asset.insert(
-      Cardano.AssetName.new(
-        Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
+      Cardano.AssetName.from_hex(
+        '6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7'
       ),
-      Cardano.BigNum.from_str(assetValue)
+      Cardano.BigInteger.from_str(assetValue).as_u64() || 0n
     );
-    _multiAsset.insert(
-      Cardano.ScriptHash.from_bytes(
+    _multiAsset.insert_assets(
+      Cardano.ScriptHash.from_raw_bytes(
         Buffer.from('6b8d07d69639e9413dd637a1a815a7323c69c86abbafb66dbfdb1aa7', 'hex')
       ),
       _asset
     );
 
-    const _value = Cardano.Value.new(Cardano.BigNum.from_str(adaValue));
-
-    _value.set_multiasset(_multiAsset);
+    const _value = Cardano.Value.new(Cardano.BigInteger.from_str(adaValue).as_u64()|| 0n, Cardano.MultiAsset.new());
 
     //Cardano.Value.new(BigNum.from_str('2000000'))
   
@@ -161,7 +153,7 @@ export namespace MockMultiAsset {
       _value
     )
 
-    console.log(output.amount().coin().to_str())
+    console.log(output.amount().coin().toString())
   
     outputs.add(output);
   

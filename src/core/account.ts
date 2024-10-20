@@ -27,6 +27,7 @@ interface AccountBalance {
 
 interface AccountWallet extends AccountData {
     encryptedRootKey: string
+    encryptedPhrase: string
 }
 
 export interface AccountContext extends AccountData, AccountBalance {
@@ -57,8 +58,13 @@ class Account extends Base {
 
         const encryptedRootKey = Utils.Encryption(this.Cardano).encryptWithPassword(
                 password,
-                rootKey.as_bytes()
+                rootKey.to_raw_bytes()
             );
+
+        const encryptedPhrase = Utils.Encryption(this.Cardano).encryptWithPassword(
+            password,
+            mnemonic
+        );
 
         const accountData = this.createAccount(name, password, accountIndex, encryptedRootKey)
         //Clear RootKey
@@ -66,7 +72,8 @@ class Account extends Base {
 
         return {
             ...accountData,
-            encryptedRootKey
+            encryptedRootKey,
+            encryptedPhrase
         }
     }
 
@@ -78,8 +85,8 @@ class Account extends Base {
             accountIndex,
             encryptedRootKey
         )
-
-        const publicKey = Buffer.from(accountKey.to_public().as_bytes()).toString('hex');
+        
+        const publicKey = Buffer.from(accountKey.to_public().to_raw_bytes()).toString('hex');
         const paymentPubKey = paymentKey.to_public();
         const stakePubKey = stakeKey.to_public();
 
@@ -88,10 +95,10 @@ class Account extends Base {
         stakeKey.free();
 
         const paymentPubKeyHash = Buffer.from(
-            paymentPubKey.hash().to_bytes()
+            paymentPubKey.hash().to_raw_bytes()
         ).toString('hex');
         const stakePubKeyHash = Buffer.from(
-            stakePubKey.hash().to_bytes()
+            stakePubKey.hash().to_raw_bytes()
         ).toString('hex');
 
         const networkDefault = {
@@ -128,7 +135,7 @@ class Account extends Base {
 
     generateAccountKeyPair(password:string, accountIndex:number, encryptedRootKey:string): AccountKeyPair {
         try {
-            const accountKey = this.Cardano.Bip32PrivateKey.from_bytes(
+            const accountKey = this.Cardano.Bip32PrivateKey.from_raw_bytes(
                 Buffer.from(
                     Utils.Encryption(this.Cardano).decryptWithPassword(
                         password,
@@ -152,23 +159,23 @@ class Account extends Base {
     }
 
     getAccount(accountData: AccountData, networkInfo: NetworkInfo): AccountContext {
-        const paymentPubKeyHash = this.Cardano.Ed25519KeyHash.from_bytes(
+        const paymentPubKeyHash = this.Cardano.Ed25519KeyHash.from_raw_bytes(
             Buffer.from(accountData.paymentPubKeyHash, 'hex')
         );
-        const stakePubKeyHash = this.Cardano.Ed25519KeyHash.from_bytes(
+        const stakePubKeyHash = this.Cardano.Ed25519KeyHash.from_raw_bytes(
             Buffer.from(accountData.stakePubKeyHash, 'hex')
         );
         const paymentAddr = this.Cardano.BaseAddress.new(
             networkInfo.id,
-            this.Cardano.StakeCredential.from_keyhash(paymentPubKeyHash),
-            this.Cardano.StakeCredential.from_keyhash(stakePubKeyHash)
+            this.Cardano.Credential.new_pub_key(paymentPubKeyHash),
+            this.Cardano.Credential.new_pub_key(stakePubKeyHash)
         )
         .to_address()
         .to_bech32();
 
         const rewardAddr = this.Cardano.RewardAddress.new(
             networkInfo.id,
-            this.Cardano.StakeCredential.from_keyhash(stakePubKeyHash)
+            this.Cardano.Credential.new_pub_key(stakePubKeyHash)
         )
         .to_address()
         .to_bech32();

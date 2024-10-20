@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "6.0.1",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "src"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=16"
   },
   "scripts": {
     "start": "tsdx watch",
@@ -49,8 +49,8 @@
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-react": "^7.14.5",
-    "@dcspark/cardano-multiplatform-lib-browser": "3.1.1",
-    "@dcspark/cardano-multiplatform-lib-nodejs": "3.1.1",
+    "@dcspark/cardano-multiplatform-lib-browser": "6.0.0",
+    "@dcspark/cardano-multiplatform-lib-nodejs": "6.0.0",
     "@emurgo/cardano-message-signing-browser": "1.0.1",
     "@emurgo/cardano-message-signing-nodejs": "1.0.1",
     "@size-limit/preset-small-lib": "^5.0.3",
@@ -68,7 +68,22 @@
     "@apollo/client": "^3.4.10",
     "@b58-finance/b58-coin-selection": "0.1.4-beta",
     "@b58-finance/crypto-random-string": "14.0.0",
+    "@keystonehq/keystone-sdk": "^0.7.7",
     "bip39": "^3.0.4",
     "graphql": "^15.5.2"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 67",
+      "edge >= 79",
+      "firefox >= 68",
+      "opera >= 54",
+      "safari >= 14"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

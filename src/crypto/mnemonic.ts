@@ -1,7 +1,7 @@
-import { generateMnemonic as _generateMnemonic } from 'bip39'
+import { generateMnemonic as _generateMnemonic, wordlists } from 'bip39'
 
 const generateMnemonic:any = (bytes:number) => {
     return _generateMnemonic(bytes)
 }
 
-export { generateMnemonic }
+export { generateMnemonic, wordlists }

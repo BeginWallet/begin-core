@@ -36,7 +36,7 @@ describe('Create a Cardano Account', () => {
         const mnemonic = ["test", "walk", "nut", "penalty", "hip", "pave", "soap", "entry", "language", "right", "filter", "choice"].join(' ');
         const rootKey = core.Account.createRootKey(mnemonic)
         const password = 'testPwd123';
-        const rootKeyBytes = rootKey.as_bytes();
+        const rootKeyBytes = rootKey.to_raw_bytes();
         const encryptedData = Utils.Encryption(Cardano)
             .encryptWithPassword(
                 password, 

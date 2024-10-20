@@ -4,11 +4,10 @@ import {
     TransactionInput,
     TransactionOutput,
     TransactionUnspentOutput,
+    BigInteger,
     Value,
     Address,
-    BigNum,
     TransactionHash,
-    Assets,
     AssetName,
     MultiAsset,
     ScriptHash,
@@ -79,9 +78,8 @@ describe('Extract Key Hash from Addresses', () => {
 
         const instance = {
             Address,
-            BigNum,
+            BigInteger,
             Value,
-            Assets,
             AssetName,
             MultiAsset,
             ScriptHash,
@@ -205,7 +203,7 @@ describe('Validate Addresses', () => {
         // const byronAddrBytesHex = '82d818582883581cb78e58793d25b453b716a116d519567804b9ddcc6be3a802f23dc390a102451a4170cb17001a006f0174';
         const byronAddrBytes = Cardano.ByronAddress
             .from_base58('2cWKMJemoBakC6HuYgMEvFiodGBhkHLxomEuRGc9JnmECWMDsMv3CitvJGZNbXD6Gqq63')
-            .to_bytes();
+            .to_cbor_bytes();
         
         const core = Core(Cardano).getInstance();
         const isValidByronAddress = core.Address.isValidAddress(

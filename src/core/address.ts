@@ -15,26 +15,28 @@ class Address extends Base {
         const address = Buffer.from(
             this.Cardano.Address
                 .from_bech32(addressBech32)
-                .to_bytes()
+                .to_raw_bytes()
         ).toString('hex');
 
         return address
     }
 
     extractKeyHash(address: string, networkInfo:NetworkInfo){
+
+        const addressFromBech32 = address.startsWith('addr1') ? this.getAddress(address) : address;
         
-        if (!this.isValidAddress(Buffer.from(address, 'hex'), networkInfo)) {
+        if (!this.isValidAddress(Buffer.from(addressFromBech32, 'hex'), networkInfo)) {
             throw new Error("Address Invalid Format");
         }
 
-        const paymentAddr = this.extractKeyHashFromAddress(address, ADDRESS_TYPE.Base);
+        const paymentAddr = this.extractKeyHashFromAddress(addressFromBech32, ADDRESS_TYPE.Base);
 
         if (paymentAddr.addressKeyHash && !paymentAddr.error) {
             return paymentAddr.addressKeyHash;
         }
 
         if (paymentAddr.error) {
-            const rewardAddr = this.extractKeyHashFromAddress(address, ADDRESS_TYPE.Reward);
+            const rewardAddr = this.extractKeyHashFromAddress(addressFromBech32, ADDRESS_TYPE.Reward);
 
             if (rewardAddr.addressKeyHash && !rewardAddr.error){
                 return rewardAddr.addressKeyHash;
@@ -51,15 +53,15 @@ class Address extends Base {
             let addressFrom;
             if (addressType === ADDRESS_TYPE.Base) {
                 addressFrom = this.Cardano.BaseAddress.from_address(
-                    this.Cardano.Address.from_bytes(Buffer.from(address, 'hex'))
+                    this.Cardano.Address.from_hex(address)
                 );
-                addressKeyHash = addressFrom?.payment_cred().to_keyhash()?.to_bech32(addressType)
+                addressKeyHash = addressFrom?.payment().as_pub_key()?.to_bech32(addressType)
             } else if (addressType === ADDRESS_TYPE.Reward) {
                 addressFrom = this.Cardano.RewardAddress.from_address(
-                    this.Cardano.Address.from_bytes(Buffer.from(address, 'hex'))
+                    this.Cardano.Address.from_hex(address)
                 );
             }
-            addressKeyHash = addressFrom?.payment_cred().to_keyhash()?.to_bech32(addressType)
+            addressKeyHash = addressFrom?.payment().as_pub_key()?.to_bech32(addressType)
 
             if (!addressKeyHash) {
                 throw new Error("Not a valid Address");
@@ -91,14 +93,15 @@ class Address extends Base {
         let addressValidator = this.validateShelleyAddress(address, networkInfo);
 
         if (addressValidator.validAddress !== null && !addressValidator.error) {
-            return addressValidator.validAddress.to_bytes();
+            return (addressValidator.validAddress as CardanoAddress).to_raw_bytes();
         }
 
         if (addressValidator.error){
             addressValidator = this.validateByronAddress(address, networkInfo)
 
             if (addressValidator.validAddress !== null && !addressValidator.error) {
-                return (addressValidator.validAddress as ByronAddress).to_bytes();
+                console.log((addressValidator.validAddress as ByronAddress).to_cbor_hex())
+                return (addressValidator.validAddress as ByronAddress).to_cbor_bytes();
             }
         }
 
@@ -132,7 +135,7 @@ class Address extends Base {
             if (typeof address === 'string') {
                 addressFrom = this.Cardano.Address.from_bech32(address);
             } else {
-                addressFrom = this.Cardano.Address.from_bytes(address);
+                addressFrom = this.Cardano.Address.from_raw_bytes(address);
             }
 
             validAddress = this.addressFromNetwork(addressFrom, networkInfo);
@@ -152,7 +155,7 @@ class Address extends Base {
             if (typeof address === 'string') {
                 addressFrom = this.Cardano.ByronAddress.from_base58(address);
             } else {
-                addressFrom = this.Cardano.ByronAddress.from_bytes(address);
+                addressFrom = this.Cardano.ByronAddress.from_cbor_bytes(address);
             }
             validAddress = this.addressFromNetwork(addressFrom, networkInfo);
         } catch (err) {
@@ -166,12 +169,20 @@ class Address extends Base {
     private addressFromNetwork( 
         addressFrom: CardanoAddress | ByronAddress, 
         networkInfo: NetworkInfo): CardanoAddress | ByronAddress | null {
-        
-        const addressFromChecked = addressFrom instanceof this.Cardano.ByronAddress ? addressFrom.to_address() : addressFrom;
+        const isByron = addressFrom instanceof this.Cardano.ByronAddress;
+        const addressFromChecked = isByron ? addressFrom : addressFrom;
+    
+        let networkId;
+
+        if (isByron){
+            networkId = (addressFromChecked as ByronAddress).to_address().network_id()
+        } else {
+            networkId = (addressFromChecked as CardanoAddress).network_id()
+        }
         if (
-            (addressFromChecked.network_id() === CARDANO_NETWORK_ID.mainnet &&
+            (networkId === CARDANO_NETWORK_ID.mainnet &&
             networkInfo.name === NETWORK_ID.mainnet) ||
-            (addressFromChecked.network_id() === CARDANO_NETWORK_ID.testnet &&
+            (networkId === CARDANO_NETWORK_ID.testnet &&
             networkInfo.name === NETWORK_ID.testnet)
         ) {
             return addressFromChecked;
