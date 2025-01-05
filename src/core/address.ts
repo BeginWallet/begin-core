@@ -1,5 +1,5 @@
 // import type { Address as CardanoAddress, ByronAddress } from "../../temp_modules/@dcspark/cardano-multiplatform-lib-browser"
-import type { Address as CardanoAddress, ByronAddress } from "@dcspark/cardano-multiplatform-lib-browser";
+import type { Address as CardanoAddress, ByronAddress, PlutusScript } from "@dcspark/cardano-multiplatform-lib-browser";
 import { CARDANO_NETWORK_ID, NETWORK_ID } from "../config/config";
 import { NetworkInfo } from "./account";
 import Base from "./base"; 
@@ -25,7 +25,7 @@ class Address extends Base {
 
         const addressFromBech32 = address.startsWith('addr1') ? this.getAddress(address) : address;
         
-        if (!this.isValidAddress(Buffer.from(addressFromBech32, 'hex'), networkInfo)) {
+        if (!this.isValidAddress(Buffer.from(addressFromBech32, 'hex') as any, networkInfo)) {
             throw new Error("Address Invalid Format");
         }
 
@@ -55,7 +55,6 @@ class Address extends Base {
                 addressFrom = this.Cardano.BaseAddress.from_address(
                     this.Cardano.Address.from_hex(address)
                 );
-                addressKeyHash = addressFrom?.payment().as_pub_key()?.to_bech32(addressType)
             } else if (addressType === ADDRESS_TYPE.Reward) {
                 addressFrom = this.Cardano.RewardAddress.from_address(
                     this.Cardano.Address.from_hex(address)
@@ -87,6 +86,46 @@ class Address extends Base {
         }
         
         return false
+    }
+
+    makeProgrammableTokenAddress(address: string): string {
+        const addressFrom = this.Cardano.BaseAddress.from_address(
+            this.Cardano.Address.from_bech32(address)
+        );
+
+        if (!addressFrom) {
+            throw Error('Invalid Address');
+        }
+        // const addressKeyHash = addressFrom?.payment().as_pub_key()?.to_bech32(ADDRESS_TYPE.Reward)
+
+        // const paymentCredential = addressKeyHash
+        
+        // From https://github.com/input-output-hk/wsc-poc/blob/main/compiled-prod/programmableLogicBase.json
+        // Cardano JS SDK currently does not support applying parameters to scripts yet, so we would need to use something like
+        // https://npmjs.com/package/@lucid-evolution/uplc
+        // const programmableLogicBase: PlutusScript = {
+        // __type: this.Cardano.ScriptType.Plutus,
+        // bytes: HexBlob(
+        // '58845882010000223253335734a666ae68cdd79aab9d3574200200629444cc8c8c8c0088cc0080080048c0088cc008008004894ccd55cf8008b0a999ab9a30033574200229444c008d5d1000919baf35573a0020086ae88004526163756646ae84c8d5d11aba2357446ae88d5d11aba20013235573c6ea8004004d5d0991aab9e37540020021'
+        // ),
+        // version: Cardano.PlutusLanguageVersion.V3
+        // };
+
+        const SCRIPT_HEX = '58845882010000223253335734a666ae68cdd79aab9d3574200200629444cc8c8c8c0088cc0080080048c0088cc008008004894ccd55cf8008b0a999ab9a30033574200229444c008d5d1000919baf35573a0020086ae88004526163756646ae84c8d5d11aba2357446ae88d5d11aba20013235573c6ea8004004d5d0991aab9e37540020021'
+
+        const programmableLogicBase: PlutusScript = this.Cardano.PlutusScript.from_v3(
+            this.Cardano.PlutusV3Script.from_raw_bytes(Buffer.from(SCRIPT_HEX, 'hex') as any)
+        );
+        
+        const scriptHash = programmableLogicBase.hash();
+        
+        return this.Cardano.BaseAddress.new(
+            addressFrom.network_id(),
+            this.Cardano.Credential.new_script(scriptHash),
+            addressFrom.payment()
+        )
+        .to_address()
+        .to_bech32();
     }
 
     private validateAddressFromString(address: string, networkInfo: NetworkInfo): Uint8Array | boolean {

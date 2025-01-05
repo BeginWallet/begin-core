@@ -1,5 +1,5 @@
 {
-  "version": "6.0.1",
+  "version": "6.0.24",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -19,7 +19,6 @@
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
-  "peerDependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
@@ -54,6 +53,7 @@
     "@emurgo/cardano-message-signing-browser": "1.0.1",
     "@emurgo/cardano-message-signing-nodejs": "1.0.1",
     "@size-limit/preset-small-lib": "^5.0.3",
+    "@types/bitcore-lib": "^0.15.6",
     "@types/jest": "^27.0.1",
     "babel-jest": "^27.0.6",
     "husky": "^7.0.2",
@@ -69,8 +69,15 @@
     "@b58-finance/b58-coin-selection": "0.1.4-beta",
     "@b58-finance/crypto-random-string": "14.0.0",
     "@keystonehq/keystone-sdk": "^0.7.7",
-    "bip39": "^3.0.4",
-    "graphql": "^15.5.2"
+    "@scure/base": "1.1.9",
+    "@scure/btc-signer": "1.4.0",
+    "bip32": "4.0.0",
+    "bip39": "3.0.4",
+    "bitcoinjs-lib": "6.1.7",
+    "bs58check": "4.0.0",
+    "ecpair": "2.1.0",
+    "graphql": "^15.5.2",
+    "tiny-secp256k1": "2.2.3"
   },
   "browserslist": {
     "production": [

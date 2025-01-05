@@ -213,6 +213,18 @@ describe('Validate Addresses', () => {
         console.log(isValidByronAddress)
         expect(isValidByronAddress).toBeTruthy();
     });
+
+    it('Programmable Address bech32', () => {
+        //Generate a new byron address and test isValidAddress
+        // const byronAddrBytesHex = '82d818582883581cb78e58793d25b453b716a116d519567804b9ddcc6be3a802f23dc390a102451a4170cb17001a006f0174';
+        const address = 'addr_test1qra53a9uuy8cxw09gycrrppw3vuvzfeqt9djesey7swrqgapdj5evnylp2qj8qcmkuctfrvxcx4mswzgkxe6y2kj8f3qq43p8q';
+
+        const core = Core(Cardano).getInstance();
+        const programmableAddress = core.Address.makeProgrammableTokenAddress(address);
+
+        console.log(programmableAddress)
+        expect(programmableAddress).toEqual('addr_test1zz7v9srnydqls7hnuxfjl3fff4kqexefzlweqar2grfycllmfr6tecg0svu72sfsxxzzazeccynjqk2m9npjfaquxq3sxfz7vy');
+    });
 });
 
 describe('Exception Handling', () => {
